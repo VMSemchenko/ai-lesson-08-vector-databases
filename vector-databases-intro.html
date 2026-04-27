@@ -331,6 +331,135 @@
     background: linear-gradient(90deg, #8b5cf6, #ec4899);
   }
 
+  /* ─── Speed Race demo ─── */
+  .race-demo {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .race-controls {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .race-controls select {
+    flex: 1;
+    min-width: 220px;
+    padding: 0.6rem 0.9rem;
+    background: rgba(0,0,0,0.4);
+    color: #e2e8f0;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    font-size: 0.95rem;
+  }
+  .race-controls button {
+    padding: 0.6rem 1.4rem;
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .race-controls button:hover { filter: brightness(1.15); }
+  .race-controls button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .race-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  @media (max-width: 900px) {
+    .race-grid { grid-template-columns: 1fr; }
+  }
+  .race-card {
+    background: rgba(0,0,0,0.4);
+    border-radius: 10px;
+    padding: 1.2rem;
+    border-top: 3px solid;
+    transition: transform 0.2s;
+  }
+  .race-card.flat-card { border-color: #64748b; }
+  .race-card.hnsw-card { border-color: #ec4899; }
+  .race-card.ivf-card { border-color: #6366f1; }
+  .race-card.winner {
+    box-shadow: 0 0 24px rgba(251, 191, 36, 0.35);
+    transform: translateY(-4px);
+  }
+  .race-name {
+    font-weight: 700;
+    color: #fbbf24;
+    font-size: 1.05rem;
+  }
+  .race-subtitle {
+    color: #94a3b8;
+    font-size: 0.78rem;
+    margin-bottom: 0.8rem;
+  }
+  .race-stat {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin: 0.35rem 0;
+  }
+  .race-stat-label { color: #94a3b8; }
+  .race-stat-value {
+    color: #e2e8f0;
+    font-family: monospace;
+    font-weight: 600;
+  }
+  .race-stat-value.fast { color: #4ade80; }
+  .race-stat-value.medium { color: #fbbf24; }
+  .race-stat-value.slow { color: #f87171; }
+  .race-progress {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    margin: 0.8rem 0;
+    overflow: hidden;
+  }
+  .race-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #8b5cf6, #fbbf24);
+    transition: width 0.3s ease-out;
+  }
+  .race-results-list {
+    margin-top: 0.8rem;
+    border-top: 1px dashed rgba(255,255,255,0.1);
+    padding-top: 0.6rem;
+    font-size: 0.78rem;
+    min-height: 80px;
+  }
+  .race-result-row {
+    color: #cbd5e1;
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.05);
+    display: flex;
+    gap: 0.5rem;
+  }
+  .race-result-row .race-rank {
+    color: #94a3b8;
+    font-family: monospace;
+    flex-shrink: 0;
+  }
+  .race-result-row.match { color: #4ade80; }
+  .race-result-row.miss { color: #f87171; opacity: 0.85; }
+  .race-summary {
+    margin-top: 1.2rem;
+    padding: 0.9rem 1.1rem;
+    background: rgba(251, 191, 36, 0.08);
+    border-left: 3px solid #fbbf24;
+    border-radius: 4px;
+    color: #fde68a;
+    font-size: 0.9rem;
+    display: none;
+  }
+  .race-summary.visible { display: block; }
+
   /* Index types */
   .index-grid {
     display: grid;
@@ -539,6 +668,59 @@
     50% { transform: scale(0.5); opacity: 0.7; }
     100% { transform: scale(0.5); opacity: 1; }
   }
+
+  /* Drift visualization */
+  .drift-viz {
+    background: rgba(0,0,0,0.4);
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin: 1rem 0;
+  }
+  .drift-viz svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .drift-controls {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 0.8rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .drift-controls button {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .drift-controls button.secondary {
+    background: rgba(100, 116, 139, 0.3);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+  }
+  .drift-month {
+    color: #fde68a;
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.9rem;
+    min-width: 140px;
+    text-align: center;
+  }
+  .drift-recall {
+    background: rgba(0,0,0,0.5);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+  .drift-recall.good { color: #4ade80; }
+  .drift-recall.warn { color: #fbbf24; }
+  .drift-recall.bad { color: #f87171; }
 
   /* Cloud provider cards */
   .cloud-grid {
@@ -1032,17 +1214,6 @@ print(rag_answer("як прискорити Python код?"))
   </details>
 </div>
 
-<nav class="toc">
-  <a href="#why"><span class="num">1.</span>Навіщо взагалі vector DB</a>
-  <a href="#three"><span class="num">2.</span>Три великі: Qdrant / FAISS / Pinecone</a>
-  <a href="#demo"><span class="num">3.</span>Інтерактив: пошук</a>
-  <a href="#index"><span class="num">4.</span>Типи індексів (HNSW, IVF, PQ)</a>
-  <a href="#choose"><span class="num">5.</span>Декомпозиція вибору</a>
-  <a href="#code"><span class="num">6.</span>Код: однакова задача — 3 БД</a>
-  <a href="#cost"><span class="num">7.</span>Вартість і scale</a>
-  <a href="#clouds"><span class="num">8.</span>AWS / GCP / Azure native</a>
-</nav>
-
 <!-- ============ 1. WHY ============ -->
 <section id="why">
   <h2><span class="badge">1</span>Навіщо взагалі vector database</h2>
@@ -1150,15 +1321,6 @@ print(search("як прискорити Python"))</code></pre>
     Це повноцінний semantic search. Жодного Docker, жодного API key до Pinecone,
     жодного gRPC. Vector DB сюди — як ракета, щоб дістатися магазину.
   </p>
-
-  <h3>5 причин, чому 100K — точка перелому</h3>
-  <ol>
-    <li><strong>RAM.</strong> До 600 MB — ОК на ноуті/контейнері. Далі починаєш конкурувати з самим додатком за пам'ять.</li>
-    <li><strong>Latency.</strong> До ~150ms — у межах прийнятного для веб-запиту. Далі користувач помічає лаг.</li>
-    <li><strong>Перебудова при оновленні.</strong> Кожен новий документ → переембедив → перезаписав весь .npz. До 100K — секунди, до 1M — хвилини.</li>
-    <li><strong>Filtering.</strong> <code>WHERE category='tech' AND user_id=42</code> — у numpy boolean mask, але стає некрасиво. Vector DB зробить нормально.</li>
-    <li><strong>Concurrency.</strong> Один процес з numpy ОК. 100 паралельних користувачів — треба shared memory або процес-сервер. БД це вже має.</li>
-  </ol>
 
   <h3>Коли все ж брати vector DB до 100K</h3>
   <table>
@@ -1390,41 +1552,55 @@ print(search("як прискорити Python"))</code></pre>
   </table>
 </section>
 
-<!-- ============ 3. INTERACTIVE DEMO ============ -->
-<section id="demo">
-  <h2><span class="badge">3</span>Інтерактив: vector search вживу</h2>
+<!-- ============ 3. INDEXING — WHAT & WHY ============ -->
+<section id="indexing-what">
+  <h2><span class="badge">3</span>Що таке індексація і навіщо</h2>
 
   <p>
-    Ось мікро-«база» з 12 документів про різні теми. Введи запит — побачиш, які
-    повертаються найрелевантніші. Embedding симулюється семантично через keyword-тематики.
+    <strong>Індекс</strong> — це структура даних, яку vector DB будує <strong>один раз</strong>
+    з твоїх векторів, щоб потім пошук був у <strong>100-1000× швидший</strong>
+    за brute-force перебір.
   </p>
 
-  <div class="vector-demo">
-    <div class="suggest-chips">
-      <span class="chip" onclick="setQuery('як прискорити Python код')">як прискорити Python код</span>
-      <span class="chip" onclick="setQuery('кошти на хмару')">кошти на хмару</span>
-      <span class="chip" onclick="setQuery('навчання нейромережі')">навчання нейромережі</span>
-      <span class="chip" onclick="setQuery('баг у застосунку')">баг у застосунку</span>
-      <span class="chip" onclick="setQuery('кулінарні рецепти')">кулінарні рецепти</span>
-    </div>
+  <pre><code>Без індексу: query × всі N векторів → O(N)        // 10M = 15 секунд
+З індексом:  query → граф → top-K     → O(log N)  // 10M = 10ms</code></pre>
 
-    <div class="demo-controls">
-      <input type="text" id="queryInput" placeholder="Введи запит українською..." onkeydown="if(event.key==='Enter') runSearch()">
-      <button onclick="runSearch()">🔍 Шукати</button>
-    </div>
+  <h3>🧱 Що відбувається при build_index()</h3>
+  <ol>
+    <li><strong>Кластеризація / графобудування</strong> — БД шукає структуру у векторах</li>
+    <li><strong>Запис на диск</strong> — індекс serialize-ється у файл (.faiss / .qdrant / Postgres)</li>
+    <li><strong>Завантаження в RAM</strong> — при старті БД підіймає індекс у пам'ять</li>
+    <li><strong>Готовність до пошуку</strong> — БД відповідає на queries за &lt;50ms</li>
+  </ol>
 
-    <div id="searchResults"></div>
-  </div>
+  <h3>⏱️ Коли будується індекс</h3>
+  <p><strong>Build-time (раз):</strong></p>
+  <pre><code>collection.create_index(
+    field_name="embedding",
+    index_type="HNSW",
+    params={"M": 16, "ef_construction": 64},
+)
+# → займає секунди-хвилини залежно від N</code></pre>
+
+  <p><strong>Runtime:</strong></p>
+  <ul>
+    <li>Insert нового вектора → індекс <em>інкрементально</em> оновлюється (HNSW вміє)</li>
+    <li>Видалення — soft delete + періодичний rebuild (HNSW не любить delete)</li>
+  </ul>
 
   <div class="takeaway">
-    <strong>Зверни увагу:</strong> запит «<em>прискорити Python</em>» повертає не тільки
-    документи зі словом «Python», а й про оптимізацію алгоритмів і профайлінг.
-    Це <em>семантичний</em> пошук — те, чого keyword-search (Elasticsearch BM25)
-    не вміє з коробки.
+    <strong>5 ключових тверджень про індексацію:</strong>
+    <ol style="margin-top: 0.5rem;">
+      <li>Без індексу vector DB ≈ дорогий numpy. Сенсу нема.</li>
+      <li>Індекс будується один раз, використовується мільйони разів. Інвестиція окуповується.</li>
+      <li>HNSW — дефолт у 90% продакшнів. Знати її параметри (M, ef_construction, ef_search) — обов'язково.</li>
+      <li>Індекс ≠ payload. Граф у RAM, оригінальний текст — на диску у payload.</li>
+      <li>Зміна embedding-моделі = повна перебудова індексу. Тому версіонуй колекції.</li>
+    </ol>
   </div>
 </section>
 
-<!-- ============ 4. INDEX TYPES ============ -->
+<!-- ============ 5. INDEX TYPES ============ -->
 <section id="index">
   <h2><span class="badge">4</span>Типи індексів — як працює ANN</h2>
 
@@ -1798,11 +1974,467 @@ print(search("як прискорити Python"))</code></pre>
     <li><strong>Часті масові оновлення</strong> (перебудова всього індексу щодня) — IVF будується швидше</li>
     <li><strong>&gt; 1B векторів</strong> — DiskANN (Microsoft) тримає більшу частину графа на SSD з мінімальною втратою якості</li>
   </ul>
+
+  <hr style="border: 0; border-top: 1px solid #334155; margin: 2.5rem 0;"/>
+
+  <h3>Як працює Flat (brute-force)</h3>
+  <div class="vector-viz">
+    <svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+      <!-- query -->
+      <circle cx="60" cy="120" r="9" fill="#f87171"/>
+      <text x="60" y="145" fill="#f87171" font-size="11" text-anchor="middle">query</text>
+
+      <!-- arrows from query to every vector -->
+      <g stroke="#475569" stroke-width="0.6" opacity="0.5">
+        <line x1="68" y1="118" x2="180" y2="50"/>
+        <line x1="68" y1="119" x2="220" y2="80"/>
+        <line x1="68" y1="120" x2="260" y2="40"/>
+        <line x1="68" y1="120" x2="300" y2="100"/>
+        <line x1="68" y1="121" x2="340" y2="60"/>
+        <line x1="68" y1="121" x2="380" y2="130"/>
+        <line x1="68" y1="120" x2="420" y2="40"/>
+        <line x1="68" y1="120" x2="460" y2="170"/>
+        <line x1="68" y1="119" x2="500" y2="90"/>
+        <line x1="68" y1="120" x2="540" y2="50"/>
+        <line x1="68" y1="120" x2="580" y2="200"/>
+        <line x1="68" y1="121" x2="620" y2="120"/>
+        <line x1="68" y1="121" x2="650" y2="180"/>
+      </g>
+
+      <!-- all vectors as dots -->
+      <g fill="#22c55e">
+        <circle cx="180" cy="50" r="4"/>
+        <circle cx="220" cy="80" r="4"/>
+        <circle cx="260" cy="40" r="4"/>
+        <circle cx="300" cy="100" r="4"/>
+        <circle cx="340" cy="60" r="4"/>
+        <circle cx="380" cy="130" r="4"/>
+        <circle cx="420" cy="40" r="4"/>
+        <circle cx="460" cy="170" r="4"/>
+        <circle cx="500" cy="90" r="4"/>
+        <circle cx="540" cy="50" r="4"/>
+        <circle cx="580" cy="200" r="4"/>
+        <circle cx="620" cy="120" r="4"/>
+        <circle cx="650" cy="180" r="4"/>
+      </g>
+
+      <!-- nearest vector highlighted -->
+      <circle cx="300" cy="100" r="9" fill="none" stroke="#fbbf24" stroke-width="2"/>
+      <text x="300" y="85" fill="#fbbf24" font-size="11" text-anchor="middle">nearest</text>
+
+      <text x="350" y="230" fill="#94a3b8" font-size="11" text-anchor="middle" font-style="italic">
+        Рахуємо distance(query, vᵢ) для КОЖНОГО вектора в БД → беремо top-K найменших.
+      </text>
+    </svg>
+  </div>
+
+  <h4>Аналогія для розуміння</h4>
+  <p>
+    Тобі треба знайти найближчого за віком серед 1000 людей. Flat — це коли ти
+    <strong>заглядаєш у паспорт кожного</strong> і запам'ятовуєш найближчий вік.
+    Точно — але повільно: 1000 порівнянь.
+  </p>
+
+  <h4>Як працює пошук</h4>
+  <ol>
+    <li><strong>Для кожного вектора в базі</strong> обчисли відстань до query (cosine / L2 / dot product — формули близькості).</li>
+    <li><strong>Зберігай у пам'яті K найближчих</strong> поки проходиш по всіх — як топ-список рекордів.</li>
+    <li><strong>Поверни top-K</strong> у відсортованому порядку.</li>
+    <li>Жодного індексу — просто перебір усіх векторів, але дуже швидкий завдяки оптимізаціям CPU (паралельно рахує по кілька чисел за раз).</li>
+  </ol>
+
+  <h4>Складність</h4>
+  <div class="numbers">
+    <div class="num-card">
+      <div class="big">O(N·d)</div>
+      <div class="lbl">час на 1 запит</div>
+    </div>
+    <div class="num-card">
+      <div class="big">O(N·d)</div>
+      <div class="lbl">RAM на вектори</div>
+    </div>
+    <div class="num-card">
+      <div class="big">100%</div>
+      <div class="lbl">recall — точно top-K</div>
+    </div>
+    <div class="num-card">
+      <div class="big">0</div>
+      <div class="lbl">часу на побудову</div>
+    </div>
+  </div>
+
+  <h4>Коли Flat — оптимальний вибір</h4>
+  <ul>
+    <li><strong>&lt; 100K векторів</strong> — на 50K × 1536d виходить ~5-15ms на M2 CPU. Швидше ніж build HNSW + швидше ніж network round-trip до Qdrant.</li>
+    <li><strong>Eval / benchmark</strong> — Flat дає 100% точний результат, з яким порівнюють якість інших індексів.</li>
+    <li><strong>Часті оновлення</strong> — додавання/видалення вектора — це O(1), без rebuild.</li>
+    <li><strong>FAISS Flat / numpy / pgvector без HNSW</strong> — готові production-варіанти.</li>
+  </ul>
+
+  <hr style="border: 0; border-top: 1px solid #334155; margin: 2.5rem 0;"/>
+
+  <h3>Як працює IVF (Inverted File)</h3>
+  <div class="vector-viz">
+    <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+      <!-- 4 cluster regions -->
+      <g>
+        <circle cx="160" cy="80" r="70" fill="rgba(99,102,241,0.06)" stroke="rgba(99,102,241,0.3)" stroke-dasharray="4,3"/>
+        <circle cx="500" cy="80" r="75" fill="rgba(99,102,241,0.06)" stroke="rgba(99,102,241,0.3)" stroke-dasharray="4,3"/>
+        <circle cx="160" cy="200" r="70" fill="rgba(99,102,241,0.06)" stroke="rgba(99,102,241,0.3)" stroke-dasharray="4,3"/>
+        <circle cx="500" cy="200" r="70" fill="rgba(99,102,241,0.06)" stroke="rgba(99,102,241,0.3)" stroke-dasharray="4,3"/>
+      </g>
+
+      <!-- centroids (squares) -->
+      <g fill="#a855f7">
+        <rect x="155" y="75" width="10" height="10"/>
+        <rect x="495" y="75" width="10" height="10"/>
+        <rect x="155" y="195" width="10" height="10"/>
+        <rect x="495" y="195" width="10" height="10"/>
+      </g>
+      <text x="160" y="60" fill="#a855f7" font-size="10" text-anchor="middle">cluster 1</text>
+      <text x="500" y="60" fill="#a855f7" font-size="10" text-anchor="middle">cluster 2</text>
+      <text x="160" y="245" fill="#a855f7" font-size="10" text-anchor="middle">cluster 3</text>
+      <text x="500" y="245" fill="#a855f7" font-size="10" text-anchor="middle">cluster 4</text>
+
+      <!-- vectors inside clusters -->
+      <g fill="#22c55e">
+        <circle cx="120" cy="60" r="3"/><circle cx="180" cy="55" r="3"/><circle cx="200" cy="85" r="3"/>
+        <circle cx="130" cy="105" r="3"/><circle cx="190" cy="110" r="3"/><circle cx="140" cy="80" r="3"/>
+        <circle cx="470" cy="60" r="3"/><circle cx="525" cy="55" r="3"/><circle cx="540" cy="85" r="3"/>
+        <circle cx="465" cy="105" r="3"/><circle cx="520" cy="110" r="3"/>
+        <circle cx="120" cy="180" r="3"/><circle cx="180" cy="175" r="3"/><circle cx="200" cy="220" r="3"/>
+        <circle cx="130" cy="225" r="3"/><circle cx="190" cy="230" r="3"/>
+        <circle cx="470" cy="180" r="3"/><circle cx="525" cy="175" r="3"/><circle cx="540" cy="215" r="3"/>
+        <circle cx="465" cy="225" r="3"/><circle cx="520" cy="230" r="3"/>
+      </g>
+
+      <!-- query -->
+      <circle cx="350" cy="140" r="9" fill="#f87171"/>
+      <text x="350" y="130" fill="#f87171" font-size="11" text-anchor="middle">query</text>
+
+      <!-- step 1: query → centroids (compare to all 4) -->
+      <g stroke="#fbbf24" stroke-width="1" stroke-dasharray="3,2" opacity="0.7">
+        <line x1="350" y1="140" x2="160" y2="80"/>
+        <line x1="350" y1="140" x2="500" y2="80"/>
+        <line x1="350" y1="140" x2="160" y2="200"/>
+        <line x1="350" y1="140" x2="500" y2="200"/>
+      </g>
+
+      <!-- step 2: chosen cluster (top-right) — full scan -->
+      <circle cx="500" cy="80" r="80" fill="none" stroke="#fbbf24" stroke-width="2"/>
+      <text x="500" y="20" fill="#fbbf24" font-size="11" text-anchor="middle">nprobe=1: шукаємо тільки тут</text>
+
+      <text x="350" y="270" fill="#94a3b8" font-size="11" text-anchor="middle" font-style="italic">
+        1) Знайти найближчий centroid (4 порівняння). 2) Сканувати ТІЛЬКИ вектори того кластера.
+      </text>
+    </svg>
+  </div>
+
+  <h4>Аналогія для розуміння</h4>
+  <p>
+    Тобі треба знайти книгу в бібліотеці на 1M томів. Flat — обходиш кожну поличку.
+    IVF — спочатку дивишся на <strong>табличку відділу</strong> («Історія / Фізика / Поезія…»),
+    заходиш у потрібний відділ і шукаєш тільки там. Якщо книга могла бути на межі двох
+    відділів — заходиш у <code>nprobe=2</code> найближчих.
+  </p>
+
+  <h4>Як алгоритм будує індекс</h4>
+  <ol>
+    <li><strong>Кластеризація</strong>: алгоритм k-means автоматично групує всі N векторів у <code>nlist</code> «купок» (наприклад 4096) — схожі вектори потрапляють в одну купку.</li>
+    <li><strong>Центр кластера (centroid)</strong> — це «середній» вектор усієї купки, її «представник».</li>
+    <li><strong>Список приналежності</strong>: для кожного кластера — список ID векторів, які до нього належать.</li>
+    <li>Розмір індексу ≈ розмір сирих векторів + крихітний список центрів.</li>
+  </ol>
+
+  <h4>Як працює пошук</h4>
+  <ol>
+    <li><strong>Порівняй query з усіма центрами</strong> кластерів (їх мало — для 1M векторів зазвичай ~1000-4000).</li>
+    <li><strong>Вибери <code>nprobe</code> найближчих кластерів</strong> (зазвичай 1-32).</li>
+    <li><strong>Перебери всі вектори всередині цих кластерів</strong> (повний скан, але тільки відібраних — це 1-3% від усієї бази).</li>
+    <li>Поверни top-K з усіх відсканованих.</li>
+  </ol>
+
+  <h4>Параметри IVF</h4>
+  <table>
+    <tr>
+      <th>Параметр</th>
+      <th>Що означає</th>
+      <th>Дефолт</th>
+      <th>Trade-off</th>
+    </tr>
+    <tr>
+      <td><code>nlist</code></td>
+      <td>Кількість кластерів (K у k-means)</td>
+      <td>√N (для 1M ~ 1024-4096)</td>
+      <td>↑ → менші кластери, точніше, але більше centroid-порівнянь</td>
+    </tr>
+    <tr>
+      <td><code>nprobe</code> (runtime)</td>
+      <td>Скільки кластерів сканувати при пошуку</td>
+      <td>1-32</td>
+      <td>↑ → вище recall, лінійно повільніше</td>
+    </tr>
+  </table>
+
+  <h4>Коли IVF — оптимальний вибір</h4>
+  <ul>
+    <li><strong>10M+ векторів зі статичним індексом</strong> — швидкий build (хвилини, не години як HNSW).</li>
+    <li><strong>Часті повні rebuild</strong> — k-means кластеризація швидша за побудову графа.</li>
+    <li><strong>Є GPU</strong> — FAISS-GPU прискорює і build, і search у IVF.</li>
+    <li>Зазвичай <strong>комбінують з PQ → IVF-PQ</strong> для масштабу 100M+.</li>
+  </ul>
+
+  <hr style="border: 0; border-top: 1px solid #334155; margin: 2.5rem 0;"/>
+
+  <h3>Як працює PQ (Product Quantization)</h3>
+  <div class="vector-viz">
+    <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+      <!-- Original vector: 8 sub-segments -->
+      <text x="20" y="40" fill="#94a3b8" font-size="12">оригінал: 1 вектор × 1536d × 4 byte = 6144 byte</text>
+      <g>
+        <rect x="20" y="55" width="80" height="28" fill="#6366f1" rx="3"/>
+        <rect x="100" y="55" width="80" height="28" fill="#818cf8" rx="3"/>
+        <rect x="180" y="55" width="80" height="28" fill="#a855f7" rx="3"/>
+        <rect x="260" y="55" width="80" height="28" fill="#c084fc" rx="3"/>
+        <rect x="340" y="55" width="80" height="28" fill="#6366f1" rx="3"/>
+        <rect x="420" y="55" width="80" height="28" fill="#818cf8" rx="3"/>
+        <rect x="500" y="55" width="80" height="28" fill="#a855f7" rx="3"/>
+        <rect x="580" y="55" width="80" height="28" fill="#c084fc" rx="3"/>
+      </g>
+      <text x="60" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">sub₁ (192d)</text>
+      <text x="140" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">sub₂</text>
+      <text x="220" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">sub₃</text>
+      <text x="300" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">sub₄</text>
+      <text x="380" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">sub₅</text>
+      <text x="460" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">sub₆</text>
+      <text x="540" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">sub₇</text>
+      <text x="620" y="100" fill="#94a3b8" font-size="9" text-anchor="middle">sub₈</text>
+
+      <!-- Arrows down -->
+      <g stroke="#fbbf24" stroke-width="2" fill="none">
+        <path d="M 60 115 L 60 145 M 54 139 L 60 145 L 66 139"/>
+        <path d="M 140 115 L 140 145 M 134 139 L 140 145 L 146 139"/>
+        <path d="M 220 115 L 220 145 M 214 139 L 220 145 L 226 139"/>
+        <path d="M 300 115 L 300 145 M 294 139 L 300 145 L 306 139"/>
+        <path d="M 380 115 L 380 145 M 374 139 L 380 145 L 386 139"/>
+        <path d="M 460 115 L 460 145 M 454 139 L 460 145 L 466 139"/>
+        <path d="M 540 115 L 540 145 M 534 139 L 540 145 L 546 139"/>
+        <path d="M 620 115 L 620 145 M 614 139 L 620 145 L 626 139"/>
+      </g>
+      <text x="350" y="135" fill="#fbbf24" font-size="11" text-anchor="middle">кожна частина → номер найближчого «представника» зі словника (256 варіантів = 1 байт)</text>
+
+      <!-- Codebook indices -->
+      <g>
+        <rect x="40" y="155" width="40" height="28" fill="#22c55e" rx="3"/>
+        <rect x="120" y="155" width="40" height="28" fill="#16a34a" rx="3"/>
+        <rect x="200" y="155" width="40" height="28" fill="#22c55e" rx="3"/>
+        <rect x="280" y="155" width="40" height="28" fill="#16a34a" rx="3"/>
+        <rect x="360" y="155" width="40" height="28" fill="#22c55e" rx="3"/>
+        <rect x="440" y="155" width="40" height="28" fill="#16a34a" rx="3"/>
+        <rect x="520" y="155" width="40" height="28" fill="#22c55e" rx="3"/>
+        <rect x="600" y="155" width="40" height="28" fill="#16a34a" rx="3"/>
+      </g>
+      <text x="60" y="174" fill="#fff" font-size="11" text-anchor="middle" font-weight="bold">42</text>
+      <text x="140" y="174" fill="#fff" font-size="11" text-anchor="middle" font-weight="bold">198</text>
+      <text x="220" y="174" fill="#fff" font-size="11" text-anchor="middle" font-weight="bold">7</text>
+      <text x="300" y="174" fill="#fff" font-size="11" text-anchor="middle" font-weight="bold">220</text>
+      <text x="380" y="174" fill="#fff" font-size="11" text-anchor="middle" font-weight="bold">88</text>
+      <text x="460" y="174" fill="#fff" font-size="11" text-anchor="middle" font-weight="bold">14</text>
+      <text x="540" y="174" fill="#fff" font-size="11" text-anchor="middle" font-weight="bold">155</text>
+      <text x="620" y="174" fill="#fff" font-size="11" text-anchor="middle" font-weight="bold">3</text>
+
+      <text x="350" y="220" fill="#4ade80" font-size="14" text-anchor="middle" font-weight="bold">
+        стиснено: 8 byte (×768 менше!)
+      </text>
+      <text x="350" y="245" fill="#94a3b8" font-size="11" text-anchor="middle" font-style="italic">
+        замість 1536 чисел зберігаємо 8 номерів зі словника
+      </text>
+      <text x="350" y="265" fill="#94a3b8" font-size="10" text-anchor="middle" font-style="italic">
+        Відстань рахується дуже швидко — як сума 8 готових значень з підготовленої таблиці.
+      </text>
+    </svg>
+  </div>
+
+  <h4>Аналогія для розуміння</h4>
+  <p>
+    Замість того щоб запам'ятовувати точні координати кожної точки, ти кажеш:
+    <em>«ця точка ≈ біля Києва»</em>. У PQ ти ділиш вектор на 8 частин і для кожної
+    зберігаєш <strong>номер найближчого «міста»</strong> (centroid) з 256 варіантів —
+    це 1 байт. Замість 6144 байтів — 8 байтів. Точність трохи падає (5-15% recall),
+    але економія RAM колосальна.
+  </p>
+
+  <h4>Як алгоритм будує словники (codebooks)</h4>
+  <ol>
+    <li><strong>Розріж вектор на <code>m</code> рівних частин</strong> (наприклад 1536 чисел → 8 шматків по 192).</li>
+    <li><strong>Для кожної частини</strong> побудуй «словник» з 256 типових представників (k-means кластеризація на всьому датасеті).</li>
+    <li><strong>Тепер у тебе <code>m</code> словників</strong>, у кожному — 256 «типових» під-векторів.</li>
+    <li><strong>Стискай вектор</strong>: для кожної з <code>m</code> частин запиши номер найближчого представника (число від 0 до 255 — рівно 1 байт).</li>
+    <li>Стиснений вектор = <code>m</code> байтів (для m=8 → 8 байт замість 6144).</li>
+  </ol>
+
+  <h4>Як працює пошук</h4>
+  <ol>
+    <li><strong>Розріж query на ті самі <code>m</code> частин</strong>.</li>
+    <li><strong>Підготуй таблицю відстаней один раз</strong>: для кожної частини query порахуй відстань до всіх 256 представників її словника. Виходить маленька таблиця <code>m × 256</code> чисел — вміщається в швидку пам'ять процесора.</li>
+    <li><strong>Для кожного документа</strong> відстань ≈ сума <code>m</code> готових значень з таблиці. Це блискавично швидко — ~10 наносекунд на документ.</li>
+    <li>Поверни top-K. Опціонально — перевір top-100 на повних векторах для точності.</li>
+  </ol>
+
+  <h4>Економія</h4>
+  <div class="numbers">
+    <div class="num-card">
+      <div class="big">×32–×64</div>
+      <div class="lbl">менше RAM</div>
+    </div>
+    <div class="num-card">
+      <div class="big">~85–95%</div>
+      <div class="lbl">recall@10 (vs 100% Flat)</div>
+    </div>
+    <div class="num-card">
+      <div class="big">8 byte</div>
+      <div class="lbl">на 1536d вектор (m=8)</div>
+    </div>
+    <div class="num-card">
+      <div class="big">10M = 80MB</div>
+      <div class="lbl">замість 60GB</div>
+    </div>
+  </div>
+
+  <h4>Параметри PQ</h4>
+  <table>
+    <tr>
+      <th>Параметр</th>
+      <th>Що означає</th>
+      <th>Дефолт</th>
+      <th>Trade-off</th>
+    </tr>
+    <tr>
+      <td><code>m</code></td>
+      <td>На скільки під-векторів розбиваємо (має ділити d)</td>
+      <td>8-16</td>
+      <td>↑ → точніше, більше байтів на вектор</td>
+    </tr>
+    <tr>
+      <td><code>nbits</code></td>
+      <td>Бітів на код (зазвичай 8 → 256 центроїдів)</td>
+      <td>8</td>
+      <td>↑ → точніше, повільніший lookup</td>
+    </tr>
+  </table>
+
+  <h4>Коли PQ — обов'язковий</h4>
+  <ul>
+    <li><strong>&gt; 10M векторів × 1536d</strong> — без PQ потрібно 60+ GB RAM, з PQ влізає в ноут.</li>
+    <li><strong>Edge / mobile inference</strong> — модель з мільйонами embedding-ів на телефоні.</li>
+    <li><strong>HNSW-PQ / IVF-PQ комбо</strong> — production-стандарт для billion-scale (FAISS, Milvus).</li>
+    <li><strong>Re-rank pattern</strong>: PQ робить швидкий top-100, потім exact distance на цих 100 для фінального top-10 — отримуєш швидкість PQ + recall ~99%.</li>
+  </ul>
 </section>
 
-<!-- ============ 5. CHOOSE ============ -->
+<!-- ============ 5. INTERACTIVE DEMO ============ -->
+<section id="demo">
+  <h2><span class="badge">5</span>Інтерактив: vector search вживу</h2>
+
+  <h3>🏎️ Vector DB Speed Race — 50 000 векторів</h3>
+
+  <p>
+    Той самий запит паралельно йде в 3 індекси: <strong>Flat</strong> (повний перебір),
+    <strong>HNSW</strong> (граф), <strong>IVF</strong> (кластеризація). Симуляція показує
+    реалістичні latency, кількість «розглянутих» векторів і recall.
+  </p>
+
+  <div class="race-demo">
+    <div class="race-controls">
+      <select id="raceQuery">
+        <option value="ml">"як працює backpropagation"</option>
+        <option value="cloud">"вартість AWS EC2 інстансів"</option>
+        <option value="bug">"NullPointerException у проді"</option>
+        <option value="recipe">"італійська паста рецепт"</option>
+        <option value="python">"оптимізація Python performance"</option>
+      </select>
+      <button onclick="runRace()" id="raceBtn">🏁 Запустити пошук</button>
+    </div>
+
+    <div class="race-grid" id="raceResults">
+      <!-- Flat -->
+      <div class="race-card flat-card">
+        <div class="race-name">FAISS Flat</div>
+        <div class="race-subtitle">brute-force, 100% recall</div>
+        <div class="race-stat">
+          <span class="race-stat-label">Latency:</span>
+          <span class="race-stat-value" id="race-flat-latency">—</span>
+        </div>
+        <div class="race-stat">
+          <span class="race-stat-label">Перевірено векторів:</span>
+          <span class="race-stat-value" id="race-flat-scanned">—</span>
+        </div>
+        <div class="race-stat">
+          <span class="race-stat-label">Recall@5:</span>
+          <span class="race-stat-value" id="race-flat-recall">—</span>
+        </div>
+        <div class="race-progress"><div class="race-progress-fill" id="race-flat-bar"></div></div>
+        <div class="race-results-list" id="race-flat-list"></div>
+      </div>
+
+      <!-- HNSW -->
+      <div class="race-card hnsw-card">
+        <div class="race-name">FAISS HNSW</div>
+        <div class="race-subtitle">граф, ef_search=64</div>
+        <div class="race-stat">
+          <span class="race-stat-label">Latency:</span>
+          <span class="race-stat-value" id="race-hnsw-latency">—</span>
+        </div>
+        <div class="race-stat">
+          <span class="race-stat-label">Перевірено векторів:</span>
+          <span class="race-stat-value" id="race-hnsw-scanned">—</span>
+        </div>
+        <div class="race-stat">
+          <span class="race-stat-label">Recall@5:</span>
+          <span class="race-stat-value" id="race-hnsw-recall">—</span>
+        </div>
+        <div class="race-progress"><div class="race-progress-fill" id="race-hnsw-bar"></div></div>
+        <div class="race-results-list" id="race-hnsw-list"></div>
+      </div>
+
+      <!-- IVF -->
+      <div class="race-card ivf-card">
+        <div class="race-name">FAISS IVF</div>
+        <div class="race-subtitle">кластеризація, nprobe=8</div>
+        <div class="race-stat">
+          <span class="race-stat-label">Latency:</span>
+          <span class="race-stat-value" id="race-ivf-latency">—</span>
+        </div>
+        <div class="race-stat">
+          <span class="race-stat-label">Перевірено векторів:</span>
+          <span class="race-stat-value" id="race-ivf-scanned">—</span>
+        </div>
+        <div class="race-stat">
+          <span class="race-stat-label">Recall@5:</span>
+          <span class="race-stat-value" id="race-ivf-recall">—</span>
+        </div>
+        <div class="race-progress"><div class="race-progress-fill" id="race-ivf-bar"></div></div>
+        <div class="race-results-list" id="race-ivf-list"></div>
+      </div>
+    </div>
+
+    <div class="race-summary" id="raceSummary"></div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Що видно з цієї демки:</strong>
+    <ul style="margin-top: 0.5rem;">
+      <li><strong>HNSW у ×80–×100 швидший за Flat</strong>, бо перевіряє лише 200-400 векторів замість 50 000.</li>
+      <li><strong>Результати майже однакові</strong>: top-3 збігаються у 90%+ випадків (recall ~0.95). ANN не страшно.</li>
+      <li><strong>IVF посередині</strong>: швидше за Flat, але recall залежить від <code>nprobe</code>. Зменшиш <code>nprobe</code> — швидше, але recall падає.</li>
+      <li>На реальних 50K × 1536d це не симуляція, а <strong>реальні мс</strong>: Flat ~30ms, HNSW ~0.3ms, IVF ~3ms.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 6. CHOOSE ============ -->
 <section id="choose">
-  <h2><span class="badge">5</span>Інтерактив: яку БД обрати під твою задачу</h2>
+  <h2><span class="badge">6</span>Інтерактив: яку БД обрати під твою задачу</h2>
 
   <p>Натисни відповіді — отримаєш персональну рекомендацію:</p>
 
@@ -1850,207 +2482,6 @@ print(search("як прискорити Python"))</code></pre>
         Відповіді на 4 питання вище згенерують підказку: яка з трьох БД тобі найкраще пасує.
       </p>
     </div>
-  </div>
-</section>
-
-<!-- ============ 6. CODE ============ -->
-<section id="code">
-  <h2><span class="badge">6</span>Однакова задача — 3 різні БД</h2>
-
-  <p>
-    Задача: проіндексувати 3 документи, знайти найрелевантніший до запиту
-    <code>"What is Python?"</code>.
-  </p>
-
-  <div class="code-tabs">
-    <div class="tab-buttons">
-      <button class="tab-btn active" onclick="showTab(event, 'qdrant')">Qdrant</button>
-      <button class="tab-btn" onclick="showTab(event, 'faiss')">FAISS</button>
-      <button class="tab-btn" onclick="showTab(event, 'pinecone')">Pinecone</button>
-      <button class="tab-btn" onclick="showTab(event, 'chroma')">Chroma</button>
-    </div>
-
-    <div class="tab-content active" id="tab-qdrant">
-<pre><code># pip install qdrant-client openai
-# docker run -p 6333:6333 qdrant/qdrant
-
-from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct
-from openai import OpenAI
-
-oai = OpenAI()
-client = QdrantClient("localhost", port=6333)
-
-def embed(text):
-    return oai.embeddings.create(
-        input=text, model="text-embedding-3-small"
-    ).data[0].embedding
-
-# 1. Створити колекцію
-client.recreate_collection(
-    collection_name="docs",
-    vectors_config=VectorParams(size=1536, distance=Distance.COSINE),
-)
-
-# 2. Додати документи
-docs = [
-    "Python is a high-level programming language.",
-    "Pandas is a data analysis library for Python.",
-    "PostgreSQL is a relational database.",
-]
-client.upsert(
-    collection_name="docs",
-    points=[
-        PointStruct(id=i, vector=embed(d), payload={"text": d})
-        for i, d in enumerate(docs)
-    ],
-)
-
-# 3. Пошук
-results = client.search(
-    collection_name="docs",
-    query_vector=embed("What is Python?"),
-    limit=2,
-)
-for r in results:
-    print(f"{r.score:.3f}  {r.payload['text']}")</code></pre>
-    </div>
-
-    <div class="tab-content" id="tab-faiss">
-<pre><code># pip install faiss-cpu openai numpy
-
-import faiss
-import numpy as np
-from openai import OpenAI
-
-oai = OpenAI()
-
-def embed(text):
-    return oai.embeddings.create(
-        input=text, model="text-embedding-3-small"
-    ).data[0].embedding
-
-docs = [
-    "Python is a high-level programming language.",
-    "Pandas is a data analysis library for Python.",
-    "PostgreSQL is a relational database.",
-]
-
-# 1. Згенерувати ембедінги
-vectors = np.array([embed(d) for d in docs]).astype("float32")
-faiss.normalize_L2(vectors)  # для cosine = inner product
-
-# 2. Створити індекс
-index = faiss.IndexFlatIP(1536)  # Inner Product (= cosine на нормованих)
-index.add(vectors)
-
-# 3. Пошук
-query = np.array([embed("What is Python?")]).astype("float32")
-faiss.normalize_L2(query)
-scores, ids = index.search(query, k=2)
-
-for score, idx in zip(scores[0], ids[0]):
-    print(f"{score:.3f}  {docs[idx]}")
-
-# Persistence — сам:
-faiss.write_index(index, "docs.index")
-# index = faiss.read_index("docs.index")</code></pre>
-    </div>
-
-    <div class="tab-content" id="tab-pinecone">
-<pre><code># pip install pinecone openai
-# Створи index у https://app.pinecone.io з dimension=1536, metric=cosine
-
-from pinecone import Pinecone
-from openai import OpenAI
-import os
-
-oai = OpenAI()
-pc = Pinecone(api_key=os.environ["PINECONE_API_KEY"])
-index = pc.Index("docs")  # створено в UI заздалегідь
-
-def embed(text):
-    return oai.embeddings.create(
-        input=text, model="text-embedding-3-small"
-    ).data[0].embedding
-
-docs = [
-    "Python is a high-level programming language.",
-    "Pandas is a data analysis library for Python.",
-    "PostgreSQL is a relational database.",
-]
-
-# 1. Upsert (одночасно create+update)
-index.upsert(vectors=[
-    {"id": str(i), "values": embed(d), "metadata": {"text": d}}
-    for i, d in enumerate(docs)
-])
-
-# 2. Пошук
-results = index.query(
-    vector=embed("What is Python?"),
-    top_k=2,
-    include_metadata=True,
-)
-for match in results["matches"]:
-    print(f"{match['score']:.3f}  {match['metadata']['text']}")</code></pre>
-    </div>
-
-    <div class="tab-content" id="tab-chroma">
-<pre><code># pip install chromadb openai
-# Жодного сервера не треба — embedded mode за замовчуванням
-
-import chromadb
-from openai import OpenAI
-
-oai = OpenAI()
-
-def embed(text):
-    return oai.embeddings.create(
-        input=text, model="text-embedding-3-small"
-    ).data[0].embedding
-
-# 1. Створити клієнт (persistent — на диск)
-client = chromadb.PersistentClient(path="./chroma_db")
-
-# 2. Створити / відкрити колекцію
-collection = client.get_or_create_collection(
-    name="docs",
-    metadata={"hnsw:space": "cosine"},  # cosine / l2 / ip
-)
-
-# 3. Додати документи (Chroma сама зберігає текст у metadata)
-docs = [
-    "Python is a high-level programming language.",
-    "Pandas is a data analysis library for Python.",
-    "PostgreSQL is a relational database.",
-]
-collection.add(
-    ids=[f"doc_{i}" for i in range(len(docs))],
-    documents=docs,
-    embeddings=[embed(d) for d in docs],
-)
-
-# 4. Пошук
-results = collection.query(
-    query_embeddings=[embed("What is Python?")],
-    n_results=2,
-)
-for doc, dist in zip(results["documents"][0], results["distances"][0]):
-    print(f"{1 - dist:.3f}  {doc}")  # cosine distance → similarity
-
-# Бонус: фільтрація за метаданими
-# results = collection.query(
-#     query_embeddings=[embed("...")],
-#     n_results=5,
-#     where={"category": "tech"},  # точне співпадіння
-# )</code></pre>
-    </div>
-  </div>
-
-  <div class="takeaway">
-    <strong>Що бачимо:</strong> API майже ідентичні. Вся різниця — в тому, ХТО керує сховищем.
-    Qdrant — ти запускаєш Docker. FAISS — ти зберігаєш файли. Pinecone — індекс уже стоїть у хмарі.
   </div>
 </section>
 
@@ -2405,6 +2836,754 @@ LIMIT 5;</code></pre>
   </div>
 </section>
 
+<!-- ============ 9. TENANT / MULTI-TENANT / NAMESPACE ============ -->
+<section id="tenancy">
+  <h2><span class="badge">9</span>Tenant, multi-tenancy і namespace</h2>
+
+  <p>
+    У SaaS-продуктах vector DB обслуговує <strong>багатьох клієнтів одночасно</strong>.
+    Перш ніж говорити про архітектуру — три терміни, без яких далі не зрозуміло:
+  </p>
+
+  <h3>🏢 Tenant — окремий клієнт</h3>
+  <p>
+    <strong>Tenant</strong> (від англ. «орендар») — це <strong>ізольований клієнт / користувач /
+    організація</strong> у твоїй системі, який має свої дані і не повинен бачити чужі.
+  </p>
+  <ul>
+    <li>Slack workspace «Acme Corp» — один tenant</li>
+    <li>Slack workspace «Beta Inc» — інший tenant</li>
+    <li>Один акаунт ChatGPT з memory — один tenant</li>
+    <li>Один проєкт у Notion — один tenant</li>
+  </ul>
+  <p>
+    <strong>Tenant ID</strong> — унікальний ідентифікатор: UUID, slug (<code>acme-corp</code>),
+    або internal ID. Цей ID використовуєш як key для ізоляції.
+  </p>
+
+  <h3>🏘️ Multi-tenancy — одна система для багатьох клієнтів</h3>
+  <table>
+    <tr>
+      <th>Single-tenant</th>
+      <th>Multi-tenant</th>
+    </tr>
+    <tr>
+      <td>Окрема БД на кожного клієнта</td>
+      <td>Одна БД для всіх, ізоляція в коді</td>
+    </tr>
+    <tr>
+      <td>Дорого, повний ізолят</td>
+      <td>Дешево, треба правильно ізолювати</td>
+    </tr>
+    <tr>
+      <td>Enterprise (банки, медицина)</td>
+      <td>Більшість SaaS (Slack, Notion)</td>
+    </tr>
+    <tr>
+      <td>1 клієнт = 1 environment</td>
+      <td>1000 клієнтів = 1 environment</td>
+    </tr>
+  </table>
+
+  <div class="warning">
+    <strong>Tenant leak = катастрофа.</strong> Якщо клієнт A побачить дані клієнта B
+    навіть один раз — порушення SLA, втрата контракту, можливий судовий позов
+    (GDPR / CCPA). Ізоляція — це <em>fundamental requirement</em>, не «опція».
+  </div>
+
+  <h3>📦 Namespace — логічна ізоляція всередині індексу</h3>
+  <p>
+    <strong>Namespace</strong> — це <strong>логічний розділ всередині однієї vector DB-колекції</strong>,
+    який ізолює дані одних tenants від інших на рівні API.
+  </p>
+  <pre><code>Один індекс
+  ├─ namespace: "tenant_acme"  → 5K векторів
+  ├─ namespace: "tenant_beta"  → 12K векторів
+  └─ namespace: "tenant_..."   → ...</code></pre>
+  <p>Запит до namespace бачить <strong>тільки свої вектори</strong> — leak неможливий на рівні API.</p>
+
+  <h3>🔧 3 архітектури multi-tenancy у Vector DB</h3>
+  <table>
+    <tr>
+      <th>Підхід</th>
+      <th>Ізоляція</th>
+      <th>Recall</th>
+      <th>Складність</th>
+      <th>Коли</th>
+    </tr>
+    <tr>
+      <td><strong>Filter</strong> (<code>tenant_id</code> у payload)</td>
+      <td>🟡 покладається на код</td>
+      <td>🟡 ~80%</td>
+      <td>🟢 простий</td>
+      <td>&lt;100 тенантів</td>
+    </tr>
+    <tr>
+      <td><strong>Namespace ✅</strong></td>
+      <td>🟢 на рівні API</td>
+      <td>🟢 ~95%</td>
+      <td>🟢 простий</td>
+      <td>100-100K тенантів</td>
+    </tr>
+    <tr>
+      <td><strong>Collection per tenant</strong></td>
+      <td>🟢 повна</td>
+      <td>🟢 ~95%</td>
+      <td>🔴 1000 collections = операційний кошмар</td>
+      <td>окремий runtime per tenant</td>
+    </tr>
+  </table>
+
+  <h3>💡 Як виглядає в кожній БД</h3>
+  <pre><code># Pinecone — "namespace" як параметр виклику
+index.query(namespace="tenant_acme", vector=q, top_k=10)
+
+# Qdrant — це називається "collection"
+client.search(collection_name="docs_acme", query_vector=q)
+
+# Chroma — теж collection
+collection = client.get_collection("docs_acme")
+collection.query(query_embeddings=[q], n_results=10)
+
+# pgvector — RLS (Row Level Security) + tenant_id колонка
+SELECT * FROM docs
+WHERE tenant_id = current_setting('app.tenant_id')::uuid
+ORDER BY embedding &lt;=&gt; '[...]' LIMIT 10;</code></pre>
+
+  <h3>🚨 4 правила namespace</h3>
+  <ol>
+    <li><strong>Кожен namespace — свій HNSW-підграф</strong> → recall кращий, ніж filter (граф не «розмивається» між тенантами).</li>
+    <li><strong>Namespace name — з validated source</strong>, ніколи не з user input напряму. Інакше — leak.</li>
+    <li><strong>Cross-namespace search не працює</strong> з коробки — пишеш manual RRF fusion якщо треба.</li>
+    <li><strong>Filter ≠ namespace:</strong> filter — runtime check, namespace — фізична ізоляція + окремий граф.</li>
+  </ol>
+
+  <div class="takeaway">
+    <strong>Правило для SaaS RAG:</strong> якщо у тебе більше одного клієнта — бери
+    <strong>namespace</strong> (Pinecone) або <strong>collection per tenant</strong>
+    (Qdrant) одразу. Filter-only підхід для 1000 тенантів — fail на enterprise-співбесіді
+    і реальна загроза витоку даних у проді.
+  </div>
+</section>
+
+<!-- ============ 10. FILTERING ============ -->
+<section id="filtering">
+  <h2><span class="badge">10</span>Filtering — фільтрація за метаданими</h2>
+
+  <p>
+    У production query майже ніколи не «знайди семантично схоже». Воно завжди звучить як
+    <strong>«знайди семантично схоже <em>в моєму tenant + за останні 30 днів + категорія = tech</em>»</strong>.
+    Filtering — це SQL-подібні умови, які накладаються поверх векторного пошуку.
+  </p>
+
+  <h3>Як виглядає у коді</h3>
+  <pre><code>// Qdrant
+client.search(
+    collection_name="docs",
+    query_vector=embed("як налаштувати pgvector"),
+    query_filter=Filter(
+        must=[
+            FieldCondition(key="category", match=MatchValue(value="database")),
+            FieldCondition(key="date", range=Range(gte="2024-01-01")),
+            FieldCondition(key="lang", match=MatchValue(value="uk")),
+        ]
+    ),
+    limit=10,
+)</code></pre>
+
+  <p>
+    Виглядає просто — але <strong>під капотом це найскладніша частина vector DB</strong>.
+    Питання: <em>коли застосовувати фільтр — до чи після векторного пошуку?</em>
+  </p>
+
+  <h3>Дві стратегії: Pre-filter vs Post-filter</h3>
+
+  <table>
+    <tr>
+      <th>Стратегія</th>
+      <th>Як працює</th>
+      <th>Коли працює добре</th>
+      <th>Коли ламається</th>
+    </tr>
+    <tr>
+      <td><strong>Pre-filter</strong></td>
+      <td>1) Знаходить усі документи що проходять фільтр<br/>2) Шукає top-K серед них векторно</td>
+      <td>М'який фільтр (60-100% даних залишається)</td>
+      <td>Жорсткий фільтр (1-5% даних) → треба переглянути всю базу, повільно</td>
+    </tr>
+    <tr>
+      <td><strong>Post-filter</strong></td>
+      <td>1) Робить ANN-пошук top-K по всьому індексу<br/>2) Викидає ті, що не проходять фільтр</td>
+      <td>Дуже жорсткий фільтр + великий K</td>
+      <td>Жорсткий фільтр + малий K → можна не повернути нічого (всі K викинуто)</td>
+    </tr>
+  </table>
+
+  <h3>Чому HNSW «розпадається» на жорсткому фільтрі</h3>
+
+  <div class="vector-viz">
+    <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+      <!-- Title -->
+      <text x="170" y="20" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="bold">БЕЗ фільтра — граф цілий</text>
+      <text x="530" y="20" fill="#94a3b8" font-size="12" text-anchor="middle" font-weight="bold">ФІЛЬТР викидає 90% — граф розпадається</text>
+
+      <!-- LEFT: full graph -->
+      <g>
+        <!-- nodes -->
+        <g fill="#22c55e">
+          <circle cx="60" cy="60" r="5"/>
+          <circle cx="120" cy="55" r="5"/>
+          <circle cx="180" cy="65" r="5"/>
+          <circle cx="240" cy="55" r="5"/>
+          <circle cx="300" cy="60" r="5"/>
+          <circle cx="80" cy="120" r="5"/>
+          <circle cx="140" cy="115" r="5"/>
+          <circle cx="200" cy="125" r="5"/>
+          <circle cx="260" cy="115" r="5"/>
+          <circle cx="60" cy="180" r="5"/>
+          <circle cx="120" cy="185" r="5"/>
+          <circle cx="180" cy="175" r="5"/>
+          <circle cx="240" cy="185" r="5"/>
+          <circle cx="300" cy="180" r="5"/>
+          <circle cx="100" cy="240" r="5"/>
+          <circle cx="160" cy="245" r="5"/>
+          <circle cx="220" cy="235" r="5"/>
+          <circle cx="280" cy="245" r="5"/>
+        </g>
+        <!-- edges (dense graph) -->
+        <g stroke="#22c55e" stroke-width="0.7" opacity="0.6">
+          <line x1="60" y1="60" x2="120" y2="55"/>
+          <line x1="120" y1="55" x2="180" y2="65"/>
+          <line x1="180" y1="65" x2="240" y2="55"/>
+          <line x1="240" y1="55" x2="300" y2="60"/>
+          <line x1="60" y1="60" x2="80" y2="120"/>
+          <line x1="120" y1="55" x2="140" y2="115"/>
+          <line x1="180" y1="65" x2="200" y2="125"/>
+          <line x1="240" y1="55" x2="260" y2="115"/>
+          <line x1="80" y1="120" x2="140" y2="115"/>
+          <line x1="140" y1="115" x2="200" y2="125"/>
+          <line x1="200" y1="125" x2="260" y2="115"/>
+          <line x1="80" y1="120" x2="60" y2="180"/>
+          <line x1="140" y1="115" x2="120" y2="185"/>
+          <line x1="200" y1="125" x2="180" y2="175"/>
+          <line x1="260" y1="115" x2="240" y2="185"/>
+          <line x1="60" y1="180" x2="120" y2="185"/>
+          <line x1="120" y1="185" x2="180" y2="175"/>
+          <line x1="180" y1="175" x2="240" y2="185"/>
+          <line x1="240" y1="185" x2="300" y2="180"/>
+          <line x1="60" y1="180" x2="100" y2="240"/>
+          <line x1="120" y1="185" x2="160" y2="245"/>
+          <line x1="180" y1="175" x2="220" y2="235"/>
+          <line x1="240" y1="185" x2="280" y2="245"/>
+          <line x1="100" y1="240" x2="160" y2="245"/>
+          <line x1="160" y1="245" x2="220" y2="235"/>
+          <line x1="220" y1="235" x2="280" y2="245"/>
+        </g>
+        <!-- search path -->
+        <g stroke="#fbbf24" stroke-width="2" fill="none">
+          <line x1="60" y1="60" x2="140" y2="115"/>
+          <line x1="140" y1="115" x2="200" y2="175" stroke-dasharray="0"/>
+          <line x1="200" y1="175" x2="220" y2="235"/>
+        </g>
+        <circle cx="220" cy="235" r="9" fill="none" stroke="#fbbf24" stroke-width="2"/>
+        <text x="180" y="270" fill="#22c55e" font-size="10" text-anchor="middle">3 хопи → знайдено</text>
+      </g>
+
+      <!-- RIGHT: filtered graph (only 10% nodes survive) -->
+      <g>
+        <!-- removed nodes (gray, faded) -->
+        <g fill="#475569" opacity="0.25">
+          <circle cx="430" cy="60" r="5"/>
+          <circle cx="490" cy="55" r="5"/>
+          <circle cx="610" cy="55" r="5"/>
+          <circle cx="670" cy="60" r="5"/>
+          <circle cx="450" cy="120" r="5"/>
+          <circle cx="510" cy="115" r="5"/>
+          <circle cx="630" cy="115" r="5"/>
+          <circle cx="430" cy="180" r="5"/>
+          <circle cx="490" cy="185" r="5"/>
+          <circle cx="550" cy="175" r="5"/>
+          <circle cx="610" cy="185" r="5"/>
+          <circle cx="670" cy="180" r="5"/>
+          <circle cx="470" cy="240" r="5"/>
+          <circle cx="650" cy="245" r="5"/>
+        </g>
+        <!-- removed edges (very faded) -->
+        <g stroke="#475569" stroke-width="0.5" opacity="0.15">
+          <line x1="430" y1="60" x2="490" y2="55"/>
+          <line x1="490" y1="55" x2="550" y2="65"/>
+          <line x1="550" y1="65" x2="610" y2="55"/>
+          <line x1="610" y1="55" x2="670" y2="60"/>
+          <line x1="430" y1="60" x2="450" y2="120"/>
+          <line x1="490" y1="55" x2="510" y2="115"/>
+          <line x1="550" y1="65" x2="570" y2="125"/>
+          <line x1="450" y1="120" x2="430" y2="180"/>
+          <line x1="510" y1="115" x2="490" y2="185"/>
+          <line x1="430" y1="180" x2="470" y2="240"/>
+          <line x1="610" y1="185" x2="650" y2="245"/>
+        </g>
+        <!-- surviving nodes (highlighted, isolated) -->
+        <g fill="#22c55e">
+          <circle cx="550" cy="65" r="5"/>
+          <circle cx="570" cy="125" r="5"/>
+          <circle cx="550" cy="175" r="5"/>
+          <circle cx="590" cy="235" r="5"/>
+        </g>
+        <!-- broken paths between surviving (dashed red) -->
+        <g stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3" fill="none" opacity="0.7">
+          <line x1="550" y1="65" x2="570" y2="125"/>
+          <line x1="570" y1="125" x2="550" y2="175"/>
+          <line x1="550" y1="175" x2="590" y2="235"/>
+        </g>
+        <!-- search trying to find path -->
+        <g stroke="#fbbf24" stroke-width="2" fill="none">
+          <line x1="550" y1="65" x2="570" y2="125" stroke-dasharray="2,2"/>
+        </g>
+        <text x="570" y="270" fill="#ef4444" font-size="10" text-anchor="middle">граф розрізаний → не доходить до target</text>
+      </g>
+
+      <!-- divider -->
+      <line x1="350" y1="40" x2="350" y2="265" stroke="#334155" stroke-dasharray="3,3"/>
+    </svg>
+  </div>
+
+  <p>
+    HNSW працює тому, що сусіди в графі допомагають швидко наблизитись до query.
+    Якщо <strong>фільтр викидає 90% вузлів</strong>, у решти 10% можуть <strong>не залишитися
+    зв'язки між собою</strong> — граф буквально розрізається на ізольовані острівці.
+    Алгоритм або <strong>не знаходить target</strong> (recall падає до 50-70%), або
+    <strong>сканує величезну кількість вузлів</strong> в пошуках (latency злітає у 5-10×).
+  </p>
+
+  <h3>Як рішають у production</h3>
+
+  <table>
+    <tr>
+      <th>Рішення</th>
+      <th>Що робить</th>
+      <th>Де є</th>
+    </tr>
+    <tr>
+      <td><strong>Payload index</strong></td>
+      <td>Окремий B-tree / hash на metadata-полях. БД спочатку знаходить ID-сет за фільтром, потім робить векторний пошук тільки серед них.</td>
+      <td>Qdrant, Weaviate, Pinecone</td>
+    </tr>
+    <tr>
+      <td><strong>Filterable HNSW</strong></td>
+      <td>Граф будується з урахуванням потенційних фільтрів — додаткові ребра між «сусідами в одній категорії».</td>
+      <td>Qdrant (експериментально), Vespa</td>
+    </tr>
+    <tr>
+      <td><strong>Multiple collections</strong></td>
+      <td>Якщо є 5 категорій — створи 5 окремих індексів. Filter = вибір індексу. Recall ідеальний.</td>
+      <td>Будь-яка БД</td>
+    </tr>
+    <tr>
+      <td><strong>Increase ef_search</strong></td>
+      <td>Хак: при фільтрах підняти <code>ef_search</code> у 5-10× щоб граф «не розривався».</td>
+      <td>Будь-який HNSW</td>
+    </tr>
+  </table>
+
+  <div class="warning">
+    <strong>Що питати від БД при оцінці filtering-а:</strong>
+    <ul style="margin-top: 0.5rem;">
+      <li>Чи можна <strong>індексувати payload-поля</strong> (B-tree, full-text, geo)?</li>
+      <li>Чи підтримуються <strong>складні умови</strong> (AND / OR / NOT, range, in-list)?</li>
+      <li>Як БД поводиться при фільтрі що викидає <strong>&gt;95% даних</strong>?</li>
+      <li>Чи є <strong>метрики/логи</strong>, які показують recall при фільтрації?</li>
+    </ul>
+  </div>
+
+  <div class="takeaway">
+    <strong>Мінімум що треба знати:</strong> filtering поверх vector search — це не безкоштовно.
+    На жорстких фільтрах (&lt;5% даних залишається) HNSW втрачає recall і latency. Рішення —
+    <strong>payload index</strong> у Qdrant/Pinecone або <strong>multiple collections</strong> для
+    наперед відомих категорій. Не плутай filter з namespace: filter — runtime-перевірка,
+    namespace — фізична ізоляція з окремим графом.
+  </div>
+</section>
+
+<!-- ============ 11. EMBEDDING DRIFT ============ -->
+<section id="drift">
+  <h2><span class="badge">11</span>Embedding drift і моніторинг якості</h2>
+
+  <p>
+    <strong>Drift</strong> — поступове розходження між <strong>старими ембеддингами в БД</strong>
+    і <strong>новими queries</strong>, через яке recall падає, хоча код, БД і модель здаються «такими ж».
+    Це <em>найтихіша і найдорожча</em> проблема production RAG.
+  </p>
+
+  <h3>📉 Як виглядає drift у часі (інтерактив)</h3>
+
+  <div class="drift-viz">
+    <svg viewBox="0 0 800 320" id="drift-svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="recallGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#22c55e" stop-opacity="0.8"/>
+          <stop offset="50%" stop-color="#fbbf24" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#ef4444" stop-opacity="0.4"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Axes -->
+      <line x1="60" y1="40" x2="60" y2="260" stroke="#475569" stroke-width="1.5"/>
+      <line x1="60" y1="260" x2="760" y2="260" stroke="#475569" stroke-width="1.5"/>
+
+      <!-- Y-axis labels -->
+      <text x="50" y="48" fill="#94a3b8" font-size="11" text-anchor="end">100%</text>
+      <text x="50" y="92" fill="#94a3b8" font-size="11" text-anchor="end">90%</text>
+      <text x="50" y="136" fill="#94a3b8" font-size="11" text-anchor="end">80%</text>
+      <text x="50" y="180" fill="#94a3b8" font-size="11" text-anchor="end">70%</text>
+      <text x="50" y="224" fill="#94a3b8" font-size="11" text-anchor="end">60%</text>
+      <text x="50" y="264" fill="#94a3b8" font-size="11" text-anchor="end">50%</text>
+      <text x="20" y="160" fill="#64748b" font-size="11" transform="rotate(-90, 20, 160)" text-anchor="middle">recall@10</text>
+
+      <!-- X-axis labels (months) -->
+      <text x="60" y="280" fill="#94a3b8" font-size="11" text-anchor="middle">M0</text>
+      <text x="173" y="280" fill="#94a3b8" font-size="11" text-anchor="middle">M2</text>
+      <text x="287" y="280" fill="#94a3b8" font-size="11" text-anchor="middle">M4</text>
+      <text x="400" y="280" fill="#94a3b8" font-size="11" text-anchor="middle">M6</text>
+      <text x="513" y="280" fill="#94a3b8" font-size="11" text-anchor="middle">M8</text>
+      <text x="627" y="280" fill="#94a3b8" font-size="11" text-anchor="middle">M10</text>
+      <text x="740" y="280" fill="#94a3b8" font-size="11" text-anchor="middle">M12</text>
+      <text x="400" y="305" fill="#64748b" font-size="11" text-anchor="middle">місяці після деплою</text>
+
+      <!-- Threshold lines -->
+      <line x1="60" y1="92" x2="760" y2="92" stroke="#22c55e" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.4"/>
+      <text x="765" y="95" fill="#4ade80" font-size="9">SLA 90%</text>
+      <line x1="60" y1="180" x2="760" y2="180" stroke="#ef4444" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.4"/>
+      <text x="765" y="183" fill="#f87171" font-size="9">critical 70%</text>
+
+      <!-- Without monitoring (red curve - тихо деградує) -->
+      <path id="drift-curve" d="M 60,57 L 60,57"
+            fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+
+      <!-- Marker on curve -->
+      <circle id="drift-marker" cx="60" cy="57" r="7" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+
+      <!-- Status box -->
+      <g id="drift-status">
+        <rect x="100" y="50" width="220" height="60" rx="8" fill="rgba(0,0,0,0.6)" stroke="rgba(74,222,128,0.4)"/>
+        <text x="115" y="72" fill="#4ade80" font-size="13" font-weight="700">✅ Все нормально</text>
+        <text x="115" y="92" fill="#94a3b8" font-size="10">Метрики системи зелені</text>
+        <text x="115" y="105" fill="#94a3b8" font-size="10">Latency OK · Errors 0%</text>
+      </g>
+
+      <!-- Title -->
+      <text x="400" y="22" fill="#e9d5ff" font-size="13" font-weight="700" text-anchor="middle">
+        Recall падає тихо — без алертів і помилок
+      </text>
+    </svg>
+
+    <div class="drift-controls">
+      <button onclick="playDrift()">▶ Програти 12 місяців</button>
+      <button onclick="resetDrift()" class="secondary">⟲ Reset</button>
+      <span class="drift-month" id="drift-month">M0 — деплой</span>
+      <span class="drift-recall good" id="drift-recall">95% recall</span>
+    </div>
+  </div>
+
+  <p style="color: #f87171; font-style: italic; text-align: center;">
+    ⚠️ Помічаєш не з моніторингу — а через customer complaints через 4-6 тижнів.
+  </p>
+
+  <h3>🌊 4 типи drift</h3>
+  <table>
+    <tr>
+      <th>Тип</th>
+      <th>Що відбувається</th>
+      <th>Приклад</th>
+    </tr>
+    <tr>
+      <td><strong>🔴 Model drift</strong></td>
+      <td>Provider тихо оновив модель без version bump</td>
+      <td>OpenAI silent update <code>text-embedding-3-small</code></td>
+    </tr>
+    <tr>
+      <td><strong>🟠 Data drift</strong></td>
+      <td>Реальний світ змінюється швидше за БД</td>
+      <td>«covid» 2024 vs 2026 — інший контекст</td>
+    </tr>
+    <tr>
+      <td><strong>🟡 Domain drift</strong></td>
+      <td>Бізнес додав новий продуктовий vertical</td>
+      <td>Раніше fintech → додали healthcare</td>
+    </tr>
+    <tr>
+      <td><strong>🟢 Tokenizer drift</strong></td>
+      <td>Tokenizer оновлено → інші ID токенів</td>
+      <td>Той самий текст → інший embedding</td>
+    </tr>
+  </table>
+
+  <h3>🔍 5 сигналів для моніторингу</h3>
+  <ol>
+    <li><strong>Падіння avg(top-1 score)</strong> — раніше 0.84, сьогодні 0.71 → алерт</li>
+    <li><strong>Eval-set recall</strong> — golden 50-100 пар, daily run, recall &lt; baseline-0.05 → алерт</li>
+    <li><strong>«No good results» rate</strong> — % запитів з top1.score &lt; threshold</li>
+    <li><strong>Score distribution shift</strong> — histogram top-1 scores зміщується ліворуч</li>
+    <li><strong>User feedback</strong> — thumbs-down rate, «reformulate query» rate, escalation rate</li>
+  </ol>
+
+  <h3>🛡️ 5 правил захисту (ставляться сьогодні)</h3>
+  <pre><code># 1. Pin model + version у payload
+{
+  "id": "doc_42",
+  "embedding": [...],
+  "payload": {
+    "text": "...",
+    "embedding_model": "text-embedding-3-small",
+    "model_version": "2024-12-15",  # ← phantom version
+    "indexed_at": "2025-01-10"
+  }
+}
+
+# 2. Eval-set runner — щоночі
+def nightly_eval():
+    recall = evaluate(golden_queries, golden_answers)
+    if recall &lt; baseline - 0.05:
+        alert("Embedding drift detected", current=recall, baseline=baseline)
+
+# 3. Score distribution monitoring (Prometheus / Grafana)
+top1_score_histogram.observe(results[0].score)
+
+# 4. Re-embed на чекпоінтах — раз на 6 місяців
+# 5. Self-hosted embedder для critical domains (контроль над версією)</code></pre>
+
+  <h3>💸 Реальна вартість drift'у</h3>
+  <table>
+    <tr>
+      <th>Метрика</th>
+      <th>Вплив</th>
+    </tr>
+    <tr>
+      <td>Recall падає з 95% до 75% за 6 міс</td>
+      <td>−20% retrieval quality</td>
+    </tr>
+    <tr>
+      <td>CSAT падає на 8-12%</td>
+      <td>Втрата клієнтів, churn</td>
+    </tr>
+    <tr>
+      <td>Час на виявлення</td>
+      <td>2-6 тижнів через customer complaints</td>
+    </tr>
+    <tr>
+      <td>Час на fix (re-embed 10M docs)</td>
+      <td>~$200 + 1-2 дні engineering</td>
+    </tr>
+    <tr>
+      <td>Total cost інциденту</td>
+      <td>$50K - $500K залежно від продукту</td>
+    </tr>
+  </table>
+
+  <div class="warning">
+    <strong>🚨 Найгірша властивість drift'у — він тихий.</strong>
+    Метрики системи зелені (latency OK, error rate 0%), але якість відповідей деградує
+    тижні за тижнями. Без eval-set ти сліпий — побачиш проблему, коли клієнти вже втікають.
+  </div>
+
+  <div class="takeaway">
+    <strong>Правило senior-співбесід:</strong> на питання «як моніториш якість retrieval
+    у проді через 6 місяців?» правильна відповідь — «recall@10 на eval-set + score
+    distribution alerting + re-embed budget». Відповідь «та ніяк, vector DB ж не ламається» — fail.
+  </div>
+</section>
+
+<!-- ============ METRICS FOR HOMEWORK ============ -->
+<section id="metrics">
+  <h2><span class="badge">12</span>Метрики vector DB</h2>
+
+  <p>
+    Щоб порівнювати vector DB між собою або відстежувати деградацію в продакшні,
+    потрібен стандартний набір метрик. Він поділяється на три групи: <strong>якість
+    пошуку</strong>, <strong>швидкість</strong>, <strong>ресурси</strong>.
+  </p>
+
+  <h3>📊 Якість пошуку</h3>
+
+  <h4>Recall@10 — головна метрика якості</h4>
+  <p>
+    <strong>Питання:</strong> скільки правильних документів потрапили в топ-10?
+  </p>
+  <div style="background: rgba(34,197,94,0.05); border: 1px dashed #22c55e; padding: 0.75rem 1rem; margin: 0.75rem 0; border-radius: 4px;">
+    <strong>Навіщо міряти:</strong> Recall — основна метрика якості retrieval. Без неї неможливо
+    стверджувати, що БД працює коректно — лише що вона повертає результати. Recall @ K на eval-set —
+    єдиний об'єктивний спосіб порівняти ANN-індекси між собою (HNSW з різними параметрами, IVF, PQ)
+    і оцінити, скільки точності втрачено заради швидкості. У продакшні зниження recall на 5-10%
+    призводить до деградації якості RAG-відповідей, але без вимірювання на стабільному eval-set
+    деградація залишається непоміченою.
+  </div>
+  <div class="info-box" style="background: rgba(34,197,94,0.08); border-left: 3px solid #22c55e; padding: 1rem; margin: 1rem 0;">
+    <strong>Формула:</strong> <code>Recall@10 = |знайдені_правильні ∩ топ_10| / min(10, |правильні|)</code>
+    <br/><br/>
+    <strong>Приклад:</strong> для query «як готувати борщ» правильні відповіді з ground truth =
+    {doc_42, doc_88, doc_103}. У топ-10 пошук видав {doc_42, doc_15, doc_88, doc_7, ...}.
+    <br/>
+    <strong>Recall@10 = 2/3 ≈ 0.67</strong> (знайшли 2 з 3).
+    <br/><br/>
+    <strong>Типові значення:</strong>
+    <ul style="margin-top: 0.5rem;">
+      <li>FAISS Flat → <strong>1.00</strong> (точний пошук, baseline)</li>
+      <li>FAISS HNSW → <strong>~0.95-0.98</strong></li>
+      <li>Qdrant / Chroma / pgvector з HNSW → <strong>~0.93-0.97</strong></li>
+    </ul>
+    <strong>Якщо recall &lt; 0.8</strong> — щось зламано (неправильна метрика близькості, забутна нормалізація, невідповідна модель).
+  </div>
+
+  <h4>MRR@10 — наскільки високо стоїть перший правильний</h4>
+  <p>
+    <strong>Питання:</strong> на якій позиції стоїть перший правильний документ?
+  </p>
+  <div style="background: rgba(99,102,241,0.05); border: 1px dashed #6366f1; padding: 0.75rem 1rem; margin: 0.75rem 0; border-radius: 4px;">
+    <strong>Навіщо міряти:</strong> MRR доповнює Recall, оскільки Recall не враховує позицію
+    результату. Дві БД можуть мати однаковий Recall @ 10, але різний порядок документів —
+    у RAG-системах це впливає безпосередньо на якість відповіді, оскільки LLM використовує лише
+    top-3 — top-5 документів через обмеження контексту та вартість токенів. Якщо релевантний
+    документ знаходиться на позиції 8, він не потрапить у prompt, і LLM відповість неправильно.
+    MRR — стандартна метрика для оцінки ranking quality.
+  </div>
+  <div class="info-box" style="background: rgba(99,102,241,0.08); border-left: 3px solid #6366f1; padding: 1rem; margin: 1rem 0;">
+    <strong>Формула:</strong> <code>MRR = 1 / rank_першого_правильного</code> (0 якщо немає в топ-K)
+    <br/><br/>
+    <strong>Приклад:</strong>
+    <ul style="margin-top: 0.5rem;">
+      <li>Перший правильний на позиції 1 → MRR = 1.0 (ідеально)</li>
+      <li>На позиції 3 → MRR = 0.33</li>
+      <li>На позиції 10 → MRR = 0.10</li>
+      <li>Не знайдено → MRR = 0</li>
+    </ul>
+    <strong>Чому важливо:</strong> Recall показує «знайшли чи ні», MRR — «наскільки високо».
+    Для RAG це критично: якщо правильний документ на позиції 1 vs 8 — LLM по-різному відповість.
+  </div>
+
+  <h3>⚡ Швидкість</h3>
+
+  <h4>Indexing time — скільки секунд на побудову</h4>
+  <p>
+    Час від <code>db.index(vectors)</code> до готового до пошуку індексу.
+    Міряється секундомером (<code>time.perf_counter()</code>).
+  </p>
+  <div style="background: rgba(251,191,36,0.05); border: 1px dashed #fbbf24; padding: 0.75rem 1rem; margin: 0.75rem 0; border-radius: 4px;">
+    <strong>Навіщо міряти:</strong> Indexing time визначає operational cost і обмежує операційні
+    сценарії. При додаванні нових документів час побудови індексу впливає на вибір між
+    incremental insert і повним rebuild. При міграції на нову embedding-модель індекс необхідно
+    перебудувати повністю — для 100M векторів різниця між HNSW (години) і IVF (хвилини) визначає
+    тривалість downtime або вартість blue-green deployment з паралельним індексом.
+  </div>
+  <div class="info-box" style="background: rgba(251,191,36,0.08); border-left: 3px solid #fbbf24; padding: 1rem; margin: 1rem 0;">
+    <strong>Що очікувати на 523K векторів × 384d на M2 Pro CPU:</strong>
+    <ul style="margin-top: 0.5rem;">
+      <li>FAISS Flat → <strong>~1-3 сек</strong> (просто копіює в пам'ять)</li>
+      <li>FAISS HNSW → <strong>~60-120 сек</strong> (будує граф)</li>
+      <li>Qdrant → <strong>~3-6 хв</strong> (HNSW + persistence на диск)</li>
+      <li>pgvector → <strong>~5-10 хв</strong> (HNSW у Postgres)</li>
+      <li>Chroma → <strong>~5-15 хв</strong> (повільніший за всіх)</li>
+    </ul>
+    <strong>Висновок:</strong> якщо у проді часто переіндексовуєш —
+    Flat або IVF, не HNSW. Якщо індекс «один раз і назавжди» — HNSW.
+  </div>
+
+  <h4>Query latency p50 / p95 / p99 — НЕ середнє!</h4>
+  <p>
+    <strong>Чому не average:</strong> 1000 запитів — 999 по 5ms і 1 на 10000ms.
+    Середнє = 15ms (виглядає чудово), але <em>1% користувачів чекає 10 секунд</em>.
+  </p>
+  <div style="background: rgba(239,68,68,0.05); border: 1px dashed #ef4444; padding: 0.75rem 1rem; margin: 0.75rem 0; border-radius: 4px;">
+    <strong>Навіщо міряти:</strong> Latency визначає, чи відповідає БД вимогам SLA. У RAG-системі
+    загальний бюджет latency розподіляється між retrieval та LLM-генерацією; якщо retrieval
+    займає 200ms при бюджеті 50ms — БД не підходить незалежно від recall. Перцентилі p95 і p99
+    відображають worst-case поведінку під навантаженням, яка не видна у середньому значенні
+    через довгий хвіст розподілу (cache miss, GC pause, мережеві перешкоди). Pareto frontier
+    «recall vs latency» — стандартний інструмент вибору БД: він показує, який recall досяжний
+    при заданому latency-бюджеті.
+  </div>
+  <div class="info-box" style="background: rgba(239,68,68,0.08); border-left: 3px solid #ef4444; padding: 1rem; margin: 1rem 0;">
+    <strong>Перцентилі:</strong>
+    <ul style="margin-top: 0.5rem;">
+      <li><strong>p50 (медіана)</strong> — половина запитів швидші, половина повільніші. «Типова» швидкість.</li>
+      <li><strong>p95</strong> — 95% запитів швидші за це число. Те, що бачить «звичайний поганий день».</li>
+      <li><strong>p99</strong> — 99% швидші. Те, що бачать <strong>worst-case користувачі</strong>. Ось це і б'є по продукту.</li>
+    </ul>
+    <strong>Як міряти:</strong>
+    <pre><code>import numpy as np
+latencies = [5.2, 4.8, 6.1, ..., 142.3]  # 1000+ замірів у мс
+p50 = np.percentile(latencies, 50)
+p95 = np.percentile(latencies, 95)
+p99 = np.percentile(latencies, 99)</code></pre>
+
+    <strong>Типові значення (top-10 на ~500K векторів):</strong>
+    <ul style="margin-top: 0.5rem;">
+      <li>FAISS Flat → p50 ~30ms, p99 ~50ms (стабільно повільний)</li>
+      <li>FAISS HNSW → p50 ~0.3ms, p99 ~2ms (×100 швидший!)</li>
+      <li>Qdrant → p50 ~3-5ms, p99 ~15ms (з network overhead)</li>
+      <li>pgvector → p50 ~10-30ms, p99 ~80ms</li>
+      <li>Chroma → p50 ~20-50ms, p99 ~150ms</li>
+    </ul>
+  </div>
+
+  <div class="warning" style="background: rgba(251,146,60,0.1); border-left: 3px solid #fb923c; padding: 1rem; margin: 1rem 0;">
+    <strong>⚠️ Warmup обов'язковий!</strong> Перші 50-100 запитів завжди повільніші
+    (cold cache, JIT, lazy-load). Якщо не зробити warmup → p99 буде у 5× гірший
+    і це не реальна картина. Стандартна практика — пропускати перші 50-100 запитів при бенчмарку.
+  </div>
+
+  <h3>💾 Ресурси</h3>
+
+  <h4>Disk size — розмір індексу на диску</h4>
+  <p>
+    Скільки мегабайт займає індекс після <code>db.index()</code>.
+    Включає всі файли БД (а не тільки сирі вектори).
+  </p>
+  <div style="background: rgba(168,85,247,0.05); border: 1px dashed #a855f7; padding: 0.75rem 1rem; margin: 0.75rem 0; border-radius: 4px;">
+    <strong>Навіщо міряти:</strong> Disk size напряму впливає на storage cost у хмарних
+    провайдерах (AWS gp3 — $0.08/GB/міс) та визначає cold start time після рестарту, оскільки
+    БД повинна завантажити індекс у RAM. Метрика показує реальний storage overhead кожної БД
+    відносно розміру сирих векторів: pgvector додає Postgres-структури та B-tree індекси,
+    Qdrant зберігає WAL і payloads, Chroma тримає метадані поруч з векторами. Без цих даних
+    неможливо обґрунтовано вибрати БД при обмеженому storage-бюджеті або спрогнозувати
+    інфраструктурну вартість на 12 місяців.
+  </div>
+  <div class="info-box" style="background: rgba(168,85,247,0.08); border-left: 3px solid #a855f7; padding: 1rem; margin: 1rem 0;">
+    <strong>Очікувана арифметика для 523K × 384d float32:</strong>
+    <ul style="margin-top: 0.5rem;">
+      <li>Сирі вектори → 523K × 384 × 4 byte = <strong>~770 MB</strong></li>
+      <li>FAISS Flat → ~770 MB (плюс trivial overhead)</li>
+      <li>FAISS HNSW → ~770 MB + ~100-200 MB на граф ≈ <strong>~900 MB</strong></li>
+      <li>Qdrant → ~900 MB + payloads + WAL ≈ <strong>~1.0-1.2 GB</strong></li>
+      <li>pgvector → ~1.5-2 GB (Postgres overhead, B-tree індекси на ID)</li>
+    </ul>
+    <strong>Як міряти:</strong>
+    <pre><code>import os, pathlib
+def folder_size_mb(path):
+    return sum(f.stat().st_size for f in pathlib.Path(path).rglob('*')) / (1024**2)</code></pre>
+  </div>
+
+  <h3>📈 Pareto frontier — фінальний графік</h3>
+  <p>
+    На горизонтальній осі — <strong>latency p50</strong> (log scale, бо різниця ×100).
+    На вертикальній — <strong>recall@10</strong>. Кожна БД — точка.
+  </p>
+  <div class="info-box" style="background: rgba(34,197,94,0.05); border-left: 3px solid #22c55e; padding: 1rem; margin: 1rem 0;">
+    <strong>Як читати:</strong>
+    <ul style="margin-top: 0.5rem;">
+      <li><strong>Верхній лівий кут</strong> — ідеал (висока recall + низька latency). Туди прагнемо.</li>
+      <li><strong>Точки на frontier</strong> (з'єднані лінією) — оптимальні: для свого latency дають максимум recall.</li>
+      <li><strong>Точки під frontier</strong> — гірші у всьому, не варто обирати.</li>
+      <li>FAISS Flat зазвичай — <strong>правий верхній кут</strong> (recall=1, але повільно).</li>
+      <li>HNSW-варіанти — <strong>лівий верхній</strong> (швидко + recall ~0.95).</li>
+    </ul>
+  </div>
+
+  <div class="takeaway">
+    <strong>Що писати у звіті:</strong> «На 523K векторах HNSW дає recall 0.96 при p50=3ms,
+    Flat — recall 1.00 при p50=30ms. Для нашого latency-бюджету 10ms HNSW — оптимальний:
+    жертвуємо 4% recall за ×10 швидкість». Це — мова senior engineer.
+  </div>
+</section>
+
 <!-- ============ SUMMARY ============ -->
 <section>
   <h2>📌 Підсумок: 9 правил для vector DB</h2>
@@ -2428,89 +3607,227 @@ LIMIT 5;</code></pre>
 </div>
 
 <script>
-// ============ DEMO 3: Vector Search ============
-const DOCS = [
-  { text: "Python — інтерпретована мова програмування.", topics: ["python", "programming", "language"] },
-  { text: "Pandas — бібліотека для аналізу даних на Python.", topics: ["python", "data", "library"] },
-  { text: "Cython дозволяє прискорити Python-код через компіляцію в C.", topics: ["python", "performance", "speed", "compile"] },
-  { text: "Профілювання cProfile показує, які функції повільні.", topics: ["python", "performance", "speed", "profile"] },
-  { text: "AWS EC2 — віртуальні машини в хмарі.", topics: ["cloud", "aws", "infra", "cost"] },
-  { text: "Google Cloud Run автоматично масштабує контейнери.", topics: ["cloud", "gcp", "container", "cost"] },
-  { text: "Резервувати інстанси на 1 рік дає знижку до 60%.", topics: ["cloud", "cost", "billing", "saving"] },
-  { text: "PyTorch — фреймворк для тренування нейронних мереж.", topics: ["ml", "neural", "training", "pytorch"] },
-  { text: "Backpropagation — алгоритм навчання нейромереж через градієнти.", topics: ["ml", "neural", "training", "algorithm"] },
-  { text: "TypeError виникає при операції з несумісними типами.", topics: ["bug", "error", "debug", "python"] },
-  { text: "NullPointerException — найчастіший баг у Java-додатках.", topics: ["bug", "error", "debug", "java"] },
-  { text: "Карбонара — паста з беконом, яйцем і пармезаном.", topics: ["recipe", "cooking", "pasta", "italian"] },
-];
-
-const QUERY_TOPICS = {
-  "python": { keywords: ["python", "пайтон", "пітон"], topics: ["python", "programming"] },
-  "speed": { keywords: ["прискорити", "швидкість", "оптимізац", "повільн", "perform"], topics: ["performance", "speed"] },
-  "cloud": { keywords: ["хмар", "cloud", "aws", "gcp", "інфра"], topics: ["cloud", "infra"] },
-  "cost": { keywords: ["кошти", "ціна", "вартість", "білінг", "знижк", "економ"], topics: ["cost", "saving"] },
-  "ml": { keywords: ["нейромереж", "neural", "навчан", "тренув", "ml", "машинн"], topics: ["ml", "neural", "training"] },
-  "bug": { keywords: ["баг", "помилк", "error", "bug", "застосун", "дебаг", "виник"], topics: ["bug", "error", "debug"] },
-  "cook": { keywords: ["рецепт", "кулін", "паст", "їжа", "готуван"], topics: ["recipe", "cooking"] },
+// ============ DEMO 3: Vector DB Speed Race ============
+const RACE_CORPUS = {
+  ml: {
+    relevant: [
+      "Backpropagation обчислює градієнти через chain rule.",
+      "Loss function визначає, як модель оцінює помилки.",
+      "Gradient descent оновлює ваги нейромережі.",
+      "Adam optimizer комбінує momentum і RMSprop.",
+      "PyTorch autograd автоматично будує computation graph.",
+    ],
+    distractors: [
+      "Linear regression — найпростіша ML модель.",
+      "Cross-validation захищає від overfitting.",
+      "Feature engineering часто важливіше за модель.",
+      "Convolutional layers ефективні для зображень.",
+      "Transformer змінив landscape NLP.",
+    ],
+  },
+  cloud: {
+    relevant: [
+      "AWS EC2 t3.medium коштує ~$30/міс on-demand.",
+      "Reserved instances дають знижку до 60% за 1-річний коміт.",
+      "Spot instances — до 90% дешевше, але переривні.",
+      "Auto-scaling зменшує витрати на нічний трафік.",
+      "Cost Explorer показує breakdown по сервісах.",
+    ],
+    distractors: [
+      "Terraform автоматизує infra-as-code.",
+      "VPC ізолює мережу всередині хмари.",
+      "Lambda — serverless для коротких функцій.",
+      "S3 — object storage з 99.999999999% durability.",
+      "CloudFront прискорює доставку через CDN.",
+    ],
+  },
+  bug: {
+    relevant: [
+      "NullPointerException виникає при доступі до null reference.",
+      "Stack trace показує ланцюг викликів до помилки.",
+      "Optional&lt;T&gt; — спосіб уникнути null у Java.",
+      "Sentry агрегує помилки з продакшену.",
+      "Defensive programming перевіряє вхідні дані.",
+    ],
+    distractors: [
+      "TypeScript додає статичну типізацію в JS.",
+      "Unit-тести покривають окремі функції.",
+      "Code review знаходить баги до мерджу.",
+      "Linter автоматично перевіряє стиль коду.",
+      "Refactoring покращує структуру без зміни поведінки.",
+    ],
+  },
+  recipe: {
+    relevant: [
+      "Карбонара — паста з беконом, яйцем, пармезаном.",
+      "Болоньєзе тушиться 2-3 години для глибини смаку.",
+      "Pesto Genovese — базилік, кедрові горіхи, олія.",
+      "Lasagna — шари тіста, м'яса, бешамелю.",
+      "Risotto — рис арборіо з постійним помішуванням.",
+    ],
+    distractors: [
+      "Французький круасан — 3 дні роботи з тістом.",
+      "Японський рамен — бульйон з кістками 12 годин.",
+      "Грузинські хінкалі готуються на пару.",
+      "Іспанська паелья — рис з шафраном і морепродуктами.",
+      "Український борщ — буряк, капуста, м'ясо.",
+    ],
+  },
+  python: {
+    relevant: [
+      "Cython компілює Python у C для прискорення.",
+      "cProfile показує bottleneck-функції за часом.",
+      "NumPy векторизація швидша за чисті цикли в 100×.",
+      "Asyncio дозволяє concurrent I/O без потоків.",
+      "PyPy JIT прискорює CPU-bound код у 5-10×.",
+    ],
+    distractors: [
+      "PEP 8 описує стиль коду в Python.",
+      "Virtualenv ізолює залежності проєкту.",
+      "Django — full-stack web framework.",
+      "Pytest — найпопулярніший test runner.",
+      "Type hints додані з Python 3.5.",
+    ],
+  },
 };
 
-function setQuery(q) {
-  document.getElementById('queryInput').value = q;
-  runSearch();
+// Latency симуляція (реалістичні значення для 50K × 384d на M2 CPU)
+const RACE_LATENCY = {
+  flat:  { p50: 28.5, jitter: 4.0, scanned: 50000 },
+  hnsw:  { p50: 0.32, jitter: 0.08, scanned: 280 },
+  ivf:   { p50: 3.1,  jitter: 0.6, scanned: 1850 },
+};
+
+function _formatLatency(ms) {
+  if (ms < 1) return ms.toFixed(2) + ' ms';
+  if (ms < 10) return ms.toFixed(2) + ' ms';
+  return ms.toFixed(1) + ' ms';
+}
+function _latencyClass(ms) {
+  if (ms < 1) return 'fast';
+  if (ms < 10) return 'medium';
+  return 'slow';
+}
+function _shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function _setProgress(id, pct) {
+  document.getElementById(id).style.width = pct + '%';
+}
+function _renderResults(listId, items, groundTruthSet) {
+  const ul = document.getElementById(listId);
+  ul.innerHTML = items.map((doc, i) => {
+    const isMatch = groundTruthSet.has(doc);
+    const cls = isMatch ? 'match' : 'miss';
+    const icon = isMatch ? '✓' : '✗';
+    const truncated = doc.length > 70 ? doc.slice(0, 67) + '…' : doc;
+    return `<div class="race-result-row ${cls}">
+      <span class="race-rank">${icon} #${i + 1}</span>
+      <span>${truncated}</span>
+    </div>`;
+  }).join('');
 }
 
-function runSearch() {
-  const q = document.getElementById('queryInput').value.toLowerCase().trim();
-  if (!q) return;
+async function runRace() {
+  const select = document.getElementById('raceQuery');
+  const btn = document.getElementById('raceBtn');
+  const summary = document.getElementById('raceSummary');
+  const queryKey = select.value;
+  const corpus = RACE_CORPUS[queryKey];
+  const groundTruth = new Set(corpus.relevant);
 
-  // Determine query topics
-  const matchedTopics = new Set();
-  for (const cat of Object.values(QUERY_TOPICS)) {
-    for (const kw of cat.keywords) {
-      if (q.includes(kw)) {
-        cat.topics.forEach(t => matchedTopics.add(t));
-        break;
-      }
-    }
-  }
-
-  // Score each doc
-  const scored = DOCS.map((doc, idx) => {
-    let score = 0;
-    for (const t of doc.topics) {
-      if (matchedTopics.has(t)) score += 1;
-    }
-    // Add small jitter so identical scores have stable order
-    score += idx * 0.001;
-    // Normalize to 0-1
-    score = Math.min(0.99, score / 3 + Math.random() * 0.05);
-    return { ...doc, score };
+  // Disable button, reset cards
+  btn.disabled = true;
+  summary.classList.remove('visible');
+  ['flat', 'hnsw', 'ivf'].forEach(k => {
+    document.getElementById(`race-${k}-latency`).textContent = '…';
+    document.getElementById(`race-${k}-latency`).className = 'race-stat-value';
+    document.getElementById(`race-${k}-scanned`).textContent = '…';
+    document.getElementById(`race-${k}-recall`).textContent = '…';
+    document.getElementById(`race-${k}-list`).innerHTML = '';
+    document.querySelector(`.${k}-card`).classList.remove('winner');
+    _setProgress(`race-${k}-bar`, 0);
   });
 
-  scored.sort((a, b) => b.score - a.score);
+  // Generate latencies
+  const flatMs = RACE_LATENCY.flat.p50 + (Math.random() - 0.5) * 2 * RACE_LATENCY.flat.jitter;
+  const hnswMs = RACE_LATENCY.hnsw.p50 + (Math.random() - 0.5) * 2 * RACE_LATENCY.hnsw.jitter;
+  const ivfMs  = RACE_LATENCY.ivf.p50  + (Math.random() - 0.5) * 2 * RACE_LATENCY.ivf.jitter;
 
-  const container = document.getElementById('searchResults');
-  container.innerHTML = '';
-  const top5 = scored.slice(0, 5);
+  // Pick "results": Flat = perfect, HNSW = ~95% recall, IVF = ~80%
+  const flatResults = [...corpus.relevant];
+  const hnswResults = (() => {
+    // Drop one relevant ~10% chance, replace with distractor
+    if (Math.random() < 0.15) {
+      const out = [...corpus.relevant];
+      out[3 + Math.floor(Math.random() * 2)] = corpus.distractors[Math.floor(Math.random() * corpus.distractors.length)];
+      return out;
+    }
+    return [...corpus.relevant];
+  })();
+  const ivfResults = (() => {
+    // Replace 1-2 with distractors
+    const out = [...corpus.relevant];
+    const n = 1 + (Math.random() < 0.4 ? 1 : 0);
+    for (let i = 0; i < n; i++) {
+      out[3 + i] = corpus.distractors[Math.floor(Math.random() * corpus.distractors.length)];
+    }
+    return out;
+  })();
 
-  if (matchedTopics.size === 0) {
-    container.innerHTML = '<p style="color: #94a3b8; font-style: italic;">Не знайшов чіткої тематики у запиті. Спробуй один з прикладів вище.</p>';
-    return;
-  }
+  // HNSW finishes first (animate)
+  const hnswDelay = 100;
+  const ivfDelay  = 250;
+  const flatDelay = 600;
 
-  top5.forEach((doc, i) => {
-    const item = document.createElement('div');
-    item.className = 'result-item' + (i === 0 ? ' top' : '');
-    item.innerHTML = `
-      <div class="rank">#${i + 1}</div>
-      <div class="text">${doc.text}</div>
-      <div class="score">
-        ${doc.score.toFixed(3)}
-        <div class="score-bar"><div class="score-bar-fill" style="width: ${doc.score * 100}%"></div></div>
-      </div>
+  // HNSW
+  setTimeout(() => {
+    document.getElementById('race-hnsw-latency').textContent = _formatLatency(hnswMs);
+    document.getElementById('race-hnsw-latency').className = 'race-stat-value ' + _latencyClass(hnswMs);
+    document.getElementById('race-hnsw-scanned').textContent = RACE_LATENCY.hnsw.scanned.toLocaleString();
+    const hits = hnswResults.filter(d => groundTruth.has(d)).length;
+    document.getElementById('race-hnsw-recall').textContent = (hits / 5).toFixed(2);
+    _setProgress('race-hnsw-bar', 100);
+    _renderResults('race-hnsw-list', hnswResults, groundTruth);
+    document.querySelector('.hnsw-card').classList.add('winner');
+  }, hnswDelay);
+
+  // IVF
+  setTimeout(() => {
+    document.getElementById('race-ivf-latency').textContent = _formatLatency(ivfMs);
+    document.getElementById('race-ivf-latency').className = 'race-stat-value ' + _latencyClass(ivfMs);
+    document.getElementById('race-ivf-scanned').textContent = RACE_LATENCY.ivf.scanned.toLocaleString();
+    const hits = ivfResults.filter(d => groundTruth.has(d)).length;
+    document.getElementById('race-ivf-recall').textContent = (hits / 5).toFixed(2);
+    _setProgress('race-ivf-bar', 100);
+    _renderResults('race-ivf-list', ivfResults, groundTruth);
+  }, ivfDelay);
+
+  // Flat (slowest)
+  setTimeout(() => {
+    document.getElementById('race-flat-latency').textContent = _formatLatency(flatMs);
+    document.getElementById('race-flat-latency').className = 'race-stat-value ' + _latencyClass(flatMs);
+    document.getElementById('race-flat-scanned').textContent = RACE_LATENCY.flat.scanned.toLocaleString();
+    document.getElementById('race-flat-recall').textContent = '1.00';
+    _setProgress('race-flat-bar', 100);
+    _renderResults('race-flat-list', flatResults, groundTruth);
+
+    // Show summary
+    const speedup = (flatMs / hnswMs).toFixed(0);
+    summary.innerHTML = `
+      <strong>Результат:</strong> HNSW ×${speedup} швидший за Flat при майже ідентичному recall.
+      Перевірив <strong>${RACE_LATENCY.hnsw.scanned.toLocaleString()} векторів</strong> замість
+      <strong>${RACE_LATENCY.flat.scanned.toLocaleString()}</strong> — у ${(RACE_LATENCY.flat.scanned / RACE_LATENCY.hnsw.scanned).toFixed(0)}× менше операцій.
+      IVF посередині: ~${RACE_LATENCY.ivf.scanned.toLocaleString()} векторів, recall залежить від <code>nprobe</code>.
     `;
-    container.appendChild(item);
-  });
+    summary.classList.add('visible');
+    btn.disabled = false;
+  }, flatDelay);
 }
 
 // ============ DEMO 5: Decision Tree ============
@@ -2966,6 +4283,125 @@ function showTab(event, name) {
   event.currentTarget.classList.add('active');
   document.getElementById('tab-' + name).classList.add('active');
 }
+
+// ============ DRIFT ANIMATION ============
+const DRIFT_TIMELINE = [
+  { month: 0,  recall: 0.95, label: "M0 — деплой",                     status: "✅ Все нормально",   sub: ["Метрики системи зелені", "Latency OK · Errors 0%"], color: "#4ade80", border: "rgba(74,222,128,0.4)" },
+  { month: 1,  recall: 0.94, label: "M1 — стабільно",                  status: "✅ Все нормально",   sub: ["Метрики системи зелені", "Latency OK · Errors 0%"], color: "#4ade80", border: "rgba(74,222,128,0.4)" },
+  { month: 2,  recall: 0.92, label: "M2 — мікроспад",                  status: "✅ Все нормально",   sub: ["Метрики системи зелені", "Recall в межах SLA"],     color: "#4ade80", border: "rgba(74,222,128,0.4)" },
+  { month: 3,  recall: 0.89, label: "M3 — ледь помітно",               status: "🟡 Score distribution",sub: ["top-1 score: 0.84 → 0.78", "Drift detector тригерить"], color: "#fbbf24", border: "rgba(251,191,36,0.4)" },
+  { month: 4,  recall: 0.85, label: "M4 — sub-SLA",                    status: "🟡 Recall нижче SLA",sub: ["recall@10: 0.85 (SLA 0.90)", "User feedback: thumbs-down росте"], color: "#fbbf24", border: "rgba(251,191,36,0.4)" },
+  { month: 5,  recall: 0.81, label: "M5 — деградація",                 status: "🟡 Помітна деградація",sub: ["CSAT почав падати", "«AI став гірше відповідати»"], color: "#fbbf24", border: "rgba(251,191,36,0.4)" },
+  { month: 6,  recall: 0.76, label: "M6 — користувачі скаржаться",     status: "🔴 Customer complaints",sub: ["Support escalations +30%", "Recall 76% — критично"], color: "#f87171", border: "rgba(248,113,113,0.4)" },
+  { month: 7,  recall: 0.73, label: "M7 — churn починається",          status: "🔴 Churn",            sub: ["Втрата 5% клієнтів", "CSAT впав на 12%"],          color: "#f87171", border: "rgba(248,113,113,0.4)" },
+  { month: 8,  recall: 0.70, label: "M8 — на межі critical",           status: "🔴 Critical threshold",sub: ["recall = 70%", "Бізнес-метрики просіли"],         color: "#f87171", border: "rgba(248,113,113,0.4)" },
+  { month: 9,  recall: 0.67, label: "M9 — root cause? 🤔",             status: "🔴 Recall 67%",       sub: ["Інженери шукають bug у коді", "А це silent OpenAI update"], color: "#f87171", border: "rgba(248,113,113,0.4)" },
+  { month: 10, recall: 0.64, label: "M10 — діагноз: drift",            status: "🔴 Drift confirmed",   sub: ["model_version у payload рятує", "Eval-set показує −31% recall"], color: "#f87171", border: "rgba(248,113,113,0.4)" },
+  { month: 11, recall: 0.62, label: "M11 — emergency re-embed",        status: "🔴 Re-embed 10M docs", sub: ["Витрати: $200 + 2 дні", "Втрачено клієнтів: $200K+"], color: "#f87171", border: "rgba(248,113,113,0.4)" },
+  { month: 12, recall: 0.60, label: "M12 — урок засвоєний",            status: "🔴 Total impact $500K",sub: ["Eval-set monitoring запущено", "Quarterly re-embed у roadmap"], color: "#f87171", border: "rgba(248,113,113,0.4)" },
+];
+
+// SVG geometry: x from 60 (M0) to 740 (M12), y inverted: recall=1.0 → y=40, recall=0.5 → y=260
+function recallToY(recall) {
+  return 40 + (1.0 - recall) * (260 - 40) / 0.5;
+}
+function monthToX(month) {
+  return 60 + month * (740 - 60) / 12;
+}
+
+let driftTimer = null;
+let driftIdx = 0;
+
+function updateDriftStatus(point) {
+  const status = document.getElementById('drift-status');
+  if (!status) return;
+  status.innerHTML = `
+    <rect x="100" y="50" width="240" height="60" rx="8" fill="rgba(0,0,0,0.6)" stroke="${point.border}"/>
+    <text x="115" y="72" fill="${point.color}" font-size="13" font-weight="700">${point.status}</text>
+    <text x="115" y="92" fill="#94a3b8" font-size="10">${point.sub[0]}</text>
+    <text x="115" y="105" fill="#94a3b8" font-size="10">${point.sub[1]}</text>
+  `;
+}
+
+function playDriftStep(i) {
+  const point = DRIFT_TIMELINE[i];
+  const x = monthToX(point.month);
+  const y = recallToY(point.recall);
+
+  // build path up to this point
+  let pathD = `M ${monthToX(0)},${recallToY(DRIFT_TIMELINE[0].recall)}`;
+  for (let j = 1; j <= i; j++) {
+    pathD += ` L ${monthToX(DRIFT_TIMELINE[j].month)},${recallToY(DRIFT_TIMELINE[j].recall)}`;
+  }
+  const curve = document.getElementById('drift-curve');
+  if (curve) curve.setAttribute('d', pathD);
+
+  // gradient color depending on recall
+  if (curve) {
+    let stroke = '#22c55e';
+    if (point.recall < 0.90) stroke = '#fbbf24';
+    if (point.recall < 0.75) stroke = '#ef4444';
+    curve.setAttribute('stroke', stroke);
+  }
+
+  // marker
+  const marker = document.getElementById('drift-marker');
+  if (marker) {
+    marker.style.transition = 'all 0.6s ease-out';
+    marker.setAttribute('cx', x);
+    marker.setAttribute('cy', y);
+    marker.setAttribute('fill', point.color);
+  }
+
+  // labels
+  const monthLbl = document.getElementById('drift-month');
+  if (monthLbl) monthLbl.textContent = point.label;
+  const recallLbl = document.getElementById('drift-recall');
+  if (recallLbl) {
+    recallLbl.textContent = `${Math.round(point.recall * 100)}% recall`;
+    recallLbl.className = 'drift-recall ' + (
+      point.recall >= 0.90 ? 'good' :
+      point.recall >= 0.75 ? 'warn' : 'bad'
+    );
+  }
+
+  updateDriftStatus(point);
+}
+
+function playDrift() {
+  resetDrift();
+  driftIdx = 0;
+  function tick() {
+    if (driftIdx >= DRIFT_TIMELINE.length) {
+      driftTimer = null;
+      return;
+    }
+    playDriftStep(driftIdx);
+    driftIdx++;
+    driftTimer = setTimeout(tick, 1000);
+  }
+  tick();
+}
+
+function resetDrift() {
+  if (driftTimer) { clearTimeout(driftTimer); driftTimer = null; }
+  driftIdx = 0;
+  playDriftStep(0);
+}
+
+// auto-play on first scroll into view
+const driftObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      setTimeout(playDrift, 400);
+      driftObserver.disconnect();
+    }
+  });
+}, { threshold: 0.3 });
+window.addEventListener('load', () => {
+  const el = document.getElementById('drift-svg');
+  if (el) driftObserver.observe(el);
+});
 </script>
 </body>
 </html>
