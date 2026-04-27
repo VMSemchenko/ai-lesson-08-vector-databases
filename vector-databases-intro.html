@@ -1,0 +1,2971 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vector Databases — Qdrant, FAISS, Pinecone</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    color: #e2e8f0;
+    line-height: 1.6;
+    padding: 2rem;
+    min-height: 100vh;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 2.5rem 2rem;
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  h1 {
+    font-size: 2.6rem;
+    background: linear-gradient(135deg, #a5b4fc, #f0abfc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+  }
+  .subtitle { color: #94a3b8; font-size: 1.1rem; max-width: 720px; margin: 0 auto; }
+
+  nav.toc {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.75rem;
+    margin: 1.5rem 0 2rem;
+  }
+  nav.toc a {
+    display: block;
+    padding: 0.85rem 1rem;
+    background: rgba(139, 92, 246, 0.08);
+    border: 1px solid rgba(167, 139, 250, 0.25);
+    border-radius: 10px;
+    color: #c4b5fd;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: all 0.15s;
+  }
+  nav.toc a:hover { background: rgba(139, 92, 246, 0.18); transform: translateY(-1px); }
+  nav.toc .num { color: #818cf8; font-weight: 700; margin-right: 0.4rem; }
+
+  section {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    scroll-margin-top: 1rem;
+  }
+  h2 {
+    color: #c4b5fd;
+    margin-bottom: 1rem;
+    font-size: 1.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  h2 .badge {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: white;
+    font-size: 0.85rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  h3 { color: #e9d5ff; margin: 1.5rem 0 0.75rem 0; font-size: 1.2rem; }
+  h4 { color: #fbcfe8; margin: 1rem 0 0.5rem 0; font-size: 1rem; }
+  p { margin-bottom: 0.85rem; color: #cbd5e1; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: #cbd5e1; }
+  li { margin-bottom: 0.4rem; }
+
+  code {
+    background: rgba(0,0,0,0.4);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.88em;
+    color: #fde68a;
+  }
+  pre {
+    background: rgba(0,0,0,0.45);
+    padding: 1rem 1.2rem;
+    border-radius: 10px;
+    overflow-x: auto;
+    margin: 0.75rem 0 1rem;
+    border-left: 3px solid #818cf8;
+  }
+  pre code {
+    background: none;
+    padding: 0;
+    color: #e2e8f0;
+    font-size: 0.85em;
+    line-height: 1.55;
+  }
+
+  .takeaway {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(16, 185, 129, 0.08));
+    border-left: 4px solid #22c55e;
+    padding: 1rem 1.2rem;
+    border-radius: 8px;
+    margin: 1.2rem 0;
+  }
+  .takeaway strong { color: #4ade80; }
+  .warning {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(245, 101, 101, 0.08));
+    border-left: 4px solid #ef4444;
+    padding: 1rem 1.2rem;
+    border-radius: 8px;
+    margin: 1.2rem 0;
+  }
+  .warning strong { color: #f87171; }
+
+  /* Brand cards */
+  .brand-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  @media (min-width: 1100px) {
+    .brand-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  .brand-card {
+    background: rgba(0,0,0,0.3);
+    border-radius: 14px;
+    padding: 1.5rem;
+    border-top: 4px solid;
+    position: relative;
+  }
+  .brand-card.qdrant { border-color: #dc2626; }
+  .brand-card.faiss { border-color: #2563eb; }
+  .brand-card.pinecone { border-color: #10b981; }
+  .brand-card.chroma { border-color: #f59e0b; }
+  .brand-card .logo {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+  .brand-card.qdrant .logo { color: #f87171; }
+  .brand-card.faiss .logo { color: #60a5fa; }
+  .brand-card.pinecone .logo { color: #34d399; }
+  .brand-card.chroma .logo { color: #fbbf24; }
+  .brand-card .tagline {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+  .brand-card ul { margin: 0.5rem 0 0.5rem 1.2rem; font-size: 0.88rem; }
+  .brand-card .pros { color: #86efac; }
+  .brand-card .cons { color: #fca5a5; }
+
+  /* Comparison table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    background: rgba(0,0,0,0.25);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 0.85rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.9rem;
+  }
+  th {
+    background: rgba(99, 102, 241, 0.2);
+    color: #c4b5fd;
+    font-weight: 600;
+  }
+  td { color: #cbd5e1; }
+  tr:last-child td { border-bottom: none; }
+  td .yes { color: #4ade80; font-weight: 700; }
+  td .no { color: #f87171; font-weight: 700; }
+  td .partial { color: #fbbf24; font-weight: 700; }
+
+  /* Decision tree */
+  .decision-tree {
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+  }
+  .decision-question {
+    background: rgba(99, 102, 241, 0.15);
+    padding: 1rem 1.2rem;
+    border-radius: 10px;
+    margin-bottom: 0.6rem;
+    border-left: 4px solid #818cf8;
+  }
+  .decision-question .q {
+    color: #c4b5fd;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+  }
+  .decision-buttons {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .decision-buttons button {
+    background: rgba(167, 139, 250, 0.15);
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    color: #e9d5ff;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.15s;
+  }
+  .decision-buttons button:hover { background: rgba(167, 139, 250, 0.3); }
+  .decision-buttons button.active {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    border-color: transparent;
+    color: white;
+  }
+  .recommendation {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(16, 185, 129, 0.12));
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    padding: 1.2rem;
+    border-radius: 10px;
+    margin-top: 1rem;
+    min-height: 80px;
+  }
+  .recommendation .rec-title {
+    color: #4ade80;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    font-size: 1.05rem;
+  }
+
+  /* Vector search demo */
+  .vector-demo {
+    background: rgba(0,0,0,0.4);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin: 1rem 0;
+  }
+  .demo-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .demo-controls input {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.7rem 1rem;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-family: inherit;
+    font-size: 0.95rem;
+  }
+  .demo-controls input:focus {
+    outline: none;
+    border-color: #c4b5fd;
+  }
+  .demo-controls button {
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    border: none;
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .suggest-chips {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .chip {
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: #c4b5fd;
+    padding: 0.3rem 0.7rem;
+    border-radius: 15px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .chip:hover { background: rgba(139, 92, 246, 0.3); }
+
+  .result-item {
+    background: rgba(255,255,255,0.04);
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    gap: 1rem;
+    align-items: center;
+  }
+  .result-item.top {
+    background: rgba(251, 191, 36, 0.06);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+  }
+  .result-item .rank { font-family: monospace; color: #94a3b8; font-weight: 700; }
+  .result-item.top .rank { color: #fbbf24; }
+  .result-item .text { color: #e2e8f0; font-size: 0.9rem; }
+  .result-item .score { font-family: monospace; color: #fbbf24; font-weight: 600; }
+  .score-bar {
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    margin-top: 0.3rem;
+    overflow: hidden;
+    width: 100px;
+  }
+  .score-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8b5cf6, #ec4899);
+  }
+
+  /* Index types */
+  .index-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .index-card {
+    background: rgba(0,0,0,0.3);
+    padding: 1.2rem;
+    border-radius: 10px;
+    border-left: 4px solid;
+  }
+  .index-card.flat { border-color: #64748b; }
+  .index-card.ivf { border-color: #6366f1; }
+  .index-card.hnsw { border-color: #ec4899; }
+  .index-card.pq { border-color: #f59e0b; }
+  .index-card .name { color: #fbbf24; font-weight: 700; margin-bottom: 0.5rem; }
+  .index-card .stats {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+    flex-wrap: wrap;
+  }
+  .stat-pill {
+    background: rgba(0,0,0,0.4);
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    color: #cbd5e1;
+  }
+
+  /* Code tabs */
+  .code-tabs {
+    margin: 1rem 0;
+  }
+  .tab-buttons {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 0.7rem 1.2rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .tab-btn:hover { color: #e2e8f0; }
+  .tab-btn.active {
+    color: #c4b5fd;
+    border-bottom-color: #a855f7;
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .tab-content pre { margin-top: 0; border-top-left-radius: 0; }
+
+  /* Number callouts */
+  .numbers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.8rem;
+    margin: 1rem 0;
+  }
+  .num-card {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .num-card .big {
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #fde68a, #fb923c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .num-card .lbl {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.3rem;
+  }
+
+  /* Hero flow animation */
+  .hero-flow {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem 1rem;
+    margin: 0 0 2rem;
+  }
+  .hero-flow .flow-title {
+    text-align: center;
+    color: #c4b5fd;
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  .hero-flow .flow-sub {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+  .hero-flow svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .hero-controls {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 0.8rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .hero-controls button {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .hero-controls button.secondary {
+    background: rgba(100, 116, 139, 0.3);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+  }
+  .hero-step-label {
+    color: #fde68a;
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.85rem;
+    min-width: 250px;
+    text-align: center;
+  }
+
+  /* Index animation visuals */
+  .index-anim {
+    background: rgba(0,0,0,0.4);
+    border-radius: 10px;
+    padding: 0.8rem;
+    margin-top: 0.8rem;
+  }
+  .index-anim svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .anim-caption {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    text-align: center;
+    margin-top: 0.4rem;
+    font-style: italic;
+  }
+  .index-card { display: flex; flex-direction: column; }
+
+  /* SVG animation styles */
+  .vec-dot { fill: #6366f1; }
+  .vec-dot.scanned { fill: #fbbf24; }
+  .vec-dot.target { fill: #ef4444; stroke: #fff; stroke-width: 2; }
+  .vec-dot.found { fill: #22c55e; }
+  .vec-dot.skipped { fill: #475569; opacity: 0.4; }
+  .scan-ring {
+    fill: none;
+    stroke: #fbbf24;
+    stroke-width: 2;
+    opacity: 0;
+  }
+  .query-marker {
+    fill: #f87171;
+    stroke: #fff;
+    stroke-width: 1.5;
+  }
+
+  @keyframes flat-scan {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes ivf-pulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+  }
+  @keyframes hnsw-traverse {
+    0% { stroke-dashoffset: 100; opacity: 0; }
+    20% { opacity: 1; }
+    100% { stroke-dashoffset: 0; opacity: 1; }
+  }
+  @keyframes pq-compress {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(0.5); opacity: 0.7; }
+    100% { transform: scale(0.5); opacity: 1; }
+  }
+
+  /* Cloud provider cards */
+  .cloud-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .cloud-card {
+    background: rgba(0,0,0,0.3);
+    border-radius: 14px;
+    padding: 1.5rem;
+    border-top: 4px solid;
+  }
+  .cloud-card.aws { border-color: #ff9900; }
+  .cloud-card.gcp { border-color: #4285f4; }
+  .cloud-card.azure { border-color: #0078d4; }
+  .cloud-card .cloud-name {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 0.3rem;
+  }
+  .cloud-card.aws .cloud-name { color: #fbbf24; }
+  .cloud-card.gcp .cloud-name { color: #60a5fa; }
+  .cloud-card.azure .cloud-name { color: #38bdf8; }
+  .cloud-card .service {
+    font-family: 'Monaco', 'Consolas', monospace;
+    color: #c4b5fd;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+  }
+  .cloud-card .pitch {
+    font-size: 0.88rem;
+    color: #94a3b8;
+    font-style: italic;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  .cloud-card h4 { margin-top: 0.8rem; }
+  .cloud-card .pricing {
+    background: rgba(0,0,0,0.4);
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    margin-top: 0.8rem;
+    font-size: 0.85rem;
+    color: #fde68a;
+    font-family: 'Monaco', 'Consolas', monospace;
+  }
+
+  /* Pgvector callout */
+  .pg-callout {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(99, 102, 241, 0.08));
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-left: 4px solid #38bdf8;
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    margin: 1.2rem 0;
+  }
+  .pg-callout .pg-title {
+    color: #7dd3fc;
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Vector visualization */
+  .vector-viz {
+    background: rgba(0,0,0,0.4);
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+  .vector-viz svg { width: 100%; height: auto; display: block; }
+
+  footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 2rem;
+    color: #64748b;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 768px) {
+    .brand-grid { grid-template-columns: 1fr; }
+    body { padding: 1rem; }
+    h1 { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🗄️ Vector Databases у продакшні</h1>
+  <p class="subtitle">
+    Як обрати між Qdrant, FAISS і Pinecone. Що таке HNSW. Скільки коштує
+    мільйон ембедінгів. І коли РЕАЛЬНО потрібна векторна БД, а коли ні.
+  </p>
+</header>
+
+<div class="hero-flow">
+  <div class="flow-title">🎬 Як vector DB працює в AI-проєкті — повний flow</div>
+  <div class="flow-sub">Анімація показує, що відбувається коли користувач задає питання у твоєму RAG-чатботі</div>
+
+  <svg viewBox="0 0 900 720" xmlns="http://www.w3.org/2000/svg" id="hero-svg">
+    <defs>
+      <linearGradient id="userGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#d97706"/>
+        <stop offset="100%" stop-color="#b45309"/>
+      </linearGradient>
+      <linearGradient id="embedGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#7c3aed"/>
+        <stop offset="100%" stop-color="#6d28d9"/>
+      </linearGradient>
+      <linearGradient id="dbGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#dc2626"/>
+        <stop offset="100%" stop-color="#991b1b"/>
+      </linearGradient>
+      <linearGradient id="llmGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#10b981"/>
+        <stop offset="100%" stop-color="#047857"/>
+      </linearGradient>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#818cf8"/>
+      </marker>
+      <marker id="arrowOff" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+      </marker>
+    </defs>
+
+    <!-- ============== TOP ROW: live query path ============== -->
+    <text x="450" y="20" fill="#94a3b8" font-size="11" text-anchor="middle" font-style="italic">Live query (під час запиту користувача)</text>
+
+    <!-- USER -->
+    <g id="step-user">
+      <rect x="20" y="40" width="110" height="70" rx="10" fill="url(#userGrad)" opacity="0.4" id="box-user"/>
+      <text x="75" y="68" fill="white" font-size="13" font-weight="700" text-anchor="middle">👤 User</text>
+      <text x="75" y="88" fill="white" font-size="10" text-anchor="middle">«як прискорити</text>
+      <text x="75" y="100" fill="white" font-size="10" text-anchor="middle">Python код?»</text>
+    </g>
+
+    <!-- arrow user → embed -->
+    <line id="arr-1" x1="135" y1="75" x2="180" y2="75" stroke="#475569" stroke-width="2" marker-end="url(#arrowOff)"/>
+
+    <!-- EMBEDDING MODEL -->
+    <g id="step-embed">
+      <rect x="185" y="40" width="120" height="70" rx="10" fill="url(#embedGrad)" opacity="0.4" id="box-embed"/>
+      <text x="245" y="65" fill="white" font-size="12" font-weight="700" text-anchor="middle">🧠 Embedding</text>
+      <text x="245" y="80" fill="white" font-size="10" text-anchor="middle">text-embedding-3</text>
+      <text x="245" y="98" fill="#fde68a" font-size="9" text-anchor="middle" font-family="monospace">[0.12, -0.4, ...]</text>
+    </g>
+
+    <!-- arrow embed → vec_db -->
+    <line id="arr-2" x1="310" y1="75" x2="360" y2="75" stroke="#475569" stroke-width="2" marker-end="url(#arrowOff)"/>
+
+    <!-- VECTOR DB (search) -->
+    <g id="step-search">
+      <rect x="365" y="40" width="160" height="70" rx="10" fill="url(#dbGrad)" opacity="0.4" id="box-search"/>
+      <text x="445" y="62" fill="white" font-size="12" font-weight="700" text-anchor="middle">🗄️ Vector DB</text>
+      <text x="445" y="78" fill="white" font-size="10" text-anchor="middle">HNSW search</text>
+      <text x="445" y="100" fill="#fde68a" font-size="10" text-anchor="middle" font-family="monospace">top-3 chunks</text>
+    </g>
+
+    <!-- arrow vec_db → llm (with retrieved context label) -->
+    <line id="arr-3" x1="530" y1="75" x2="585" y2="75" stroke="#475569" stroke-width="2" marker-end="url(#arrowOff)"/>
+    <!-- floating callout: what retriever passes -->
+    <g id="ctx-callout" opacity="0.85">
+      <rect x="535" y="22" width="50" height="38" rx="4" fill="rgba(34,197,94,0.18)" stroke="rgba(74,222,128,0.5)" stroke-width="0.8"/>
+      <text x="560" y="34" fill="#86efac" font-size="7" text-anchor="middle" font-weight="700">retrieved</text>
+      <text x="560" y="44" fill="#86efac" font-size="7" text-anchor="middle" font-weight="700">context</text>
+      <text x="560" y="55" fill="#cbd5e1" font-size="6" text-anchor="middle" font-family="monospace">[text×3]</text>
+    </g>
+
+    <!-- LLM -->
+    <g id="step-llm">
+      <rect x="590" y="40" width="140" height="70" rx="10" fill="url(#llmGrad)" opacity="0.4" id="box-llm"/>
+      <text x="660" y="65" fill="white" font-size="12" font-weight="700" text-anchor="middle">🤖 LLM</text>
+      <text x="660" y="82" fill="white" font-size="10" text-anchor="middle">claude / gpt-4</text>
+      <text x="660" y="98" fill="white" font-size="9" text-anchor="middle">prompt + context</text>
+    </g>
+
+    <!-- arrow llm → answer -->
+    <line id="arr-4" x1="735" y1="75" x2="785" y2="75" stroke="#475569" stroke-width="2" marker-end="url(#arrowOff)"/>
+
+    <!-- ANSWER -->
+    <g id="step-answer">
+      <rect x="790" y="40" width="100" height="70" rx="10" fill="url(#userGrad)" opacity="0.4" id="box-answer"/>
+      <text x="840" y="68" fill="white" font-size="12" font-weight="700" text-anchor="middle">💬 Answer</text>
+      <text x="840" y="88" fill="white" font-size="9" text-anchor="middle">«Використай</text>
+      <text x="840" y="100" fill="white" font-size="9" text-anchor="middle">Cython або...»</text>
+    </g>
+
+    <!-- arrow ANSWER → USER (return loop, curved) -->
+    <path id="arr-return" d="M 840,110 Q 840,135 75,135 Q 75,120 75,110"
+          fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="5,3"
+          marker-end="url(#arrowOff)" opacity="0.5"/>
+    <text x="450" y="130" fill="#94a3b8" font-size="10" text-anchor="middle" font-style="italic" id="return-label">
+      ↪ final answer повертається користувачу
+    </text>
+
+    <!-- moving query "packet" -->
+    <circle id="packet" cx="75" cy="75" r="0" fill="#fbbf24" opacity="0"/>
+
+    <!-- ============== BOTTOM ROW: build-time indexing ============== -->
+    <text x="450" y="155" fill="#94a3b8" font-size="11" text-anchor="middle" font-style="italic">Build-time (раз при підготовці БД)</text>
+
+    <!-- DOCS -->
+    <g id="step-docs">
+      <rect x="20" y="175" width="110" height="70" rx="10" fill="rgba(99,102,241,0.2)" stroke="rgba(99,102,241,0.4)" id="box-docs"/>
+      <text x="75" y="200" fill="#c4b5fd" font-size="13" font-weight="700" text-anchor="middle">📄 Docs</text>
+      <text x="75" y="220" fill="#94a3b8" font-size="10" text-anchor="middle">PDF / web /</text>
+      <text x="75" y="232" fill="#94a3b8" font-size="10" text-anchor="middle">база знань</text>
+    </g>
+
+    <line id="arr-b1" x1="135" y1="210" x2="180" y2="210" stroke="#475569" stroke-width="2" marker-end="url(#arrowOff)"/>
+
+    <!-- CHUNK -->
+    <g id="step-chunk">
+      <rect x="185" y="175" width="120" height="70" rx="10" fill="rgba(99,102,241,0.2)" stroke="rgba(99,102,241,0.4)" id="box-chunk"/>
+      <text x="245" y="200" fill="#c4b5fd" font-size="12" font-weight="700" text-anchor="middle">✂️ Chunking</text>
+      <text x="245" y="220" fill="#94a3b8" font-size="10" text-anchor="middle">розбиваємо на</text>
+      <text x="245" y="232" fill="#94a3b8" font-size="10" text-anchor="middle">шматки ~500 tok</text>
+    </g>
+
+    <line id="arr-b2" x1="310" y1="210" x2="360" y2="210" stroke="#475569" stroke-width="2" marker-end="url(#arrowOff)"/>
+
+    <!-- EMBED batch -->
+    <g id="step-embed-batch">
+      <rect x="365" y="175" width="160" height="70" rx="10" fill="rgba(99,102,241,0.2)" stroke="rgba(99,102,241,0.4)" id="box-embed-batch"/>
+      <text x="445" y="200" fill="#c4b5fd" font-size="12" font-weight="700" text-anchor="middle">🧠 Batch embed</text>
+      <text x="445" y="220" fill="#94a3b8" font-size="10" text-anchor="middle">для всіх chunks</text>
+      <text x="445" y="232" fill="#fbbf24" font-size="10" text-anchor="middle" font-family="monospace">N × [1536d]</text>
+    </g>
+
+    <line id="arr-b3" x1="530" y1="210" x2="585" y2="210" stroke="#475569" stroke-width="2" marker-end="url(#arrowOff)"/>
+
+    <!-- INDEX -->
+    <g id="step-index">
+      <rect x="590" y="175" width="140" height="70" rx="10" fill="rgba(220,38,38,0.2)" stroke="rgba(220,38,38,0.4)" id="box-index"/>
+      <text x="660" y="200" fill="#fca5a5" font-size="12" font-weight="700" text-anchor="middle">🗄️ Build index</text>
+      <text x="660" y="220" fill="#94a3b8" font-size="10" text-anchor="middle">HNSW граф</text>
+      <text x="660" y="232" fill="#94a3b8" font-size="10" text-anchor="middle">+ payload</text>
+    </g>
+
+    <!-- arrow from index up to live search (vertical) -->
+    <line x1="660" y1="175" x2="660" y2="115" stroke="#475569" stroke-width="2" stroke-dasharray="4,3" id="arr-feed" opacity="0.4"/>
+    <text x="670" y="145" fill="#94a3b8" font-size="9" font-style="italic">feeds search</text>
+
+    <!-- packet for build path -->
+    <circle id="packet-build" cx="75" cy="210" r="0" fill="#a78bfa" opacity="0"/>
+
+    <!-- ============== DEEP-DIVE: як retriever дістає текст з embedding ============== -->
+    <text x="450" y="285" fill="#94a3b8" font-size="11" text-anchor="middle" font-style="italic">
+      🔬 Що насправді віддає Vector DB — embedding не декодується назад у текст
+    </text>
+
+    <!-- Box: query vector going IN -->
+    <g id="step-dd-query">
+      <rect x="20" y="300" width="160" height="100" rx="10" fill="rgba(124,58,237,0.18)" stroke="rgba(167,139,250,0.4)" id="box-dd-query"/>
+      <text x="100" y="322" fill="#c4b5fd" font-size="11" font-weight="700" text-anchor="middle">📥 Query vector IN</text>
+      <text x="100" y="345" fill="#fde68a" font-size="9" text-anchor="middle" font-family="monospace">[0.12, -0.4, 0.7,</text>
+      <text x="100" y="358" fill="#fde68a" font-size="9" text-anchor="middle" font-family="monospace">..., 0.03]</text>
+      <text x="100" y="378" fill="#94a3b8" font-size="9" text-anchor="middle">1536 чисел float32</text>
+      <text x="100" y="391" fill="#94a3b8" font-size="9" text-anchor="middle">= ~6 KB</text>
+    </g>
+
+    <line id="arr-dd-1" x1="185" y1="350" x2="240" y2="350" stroke="#475569" stroke-width="2" marker-end="url(#arrowOff)"/>
+
+    <!-- Box: VECTOR DB internals -->
+    <g id="step-dd-internals">
+      <rect x="245" y="300" width="280" height="160" rx="10" fill="rgba(220,38,38,0.12)" stroke="rgba(248,113,113,0.4)" id="box-dd-internals"/>
+      <text x="385" y="320" fill="#fca5a5" font-size="11" font-weight="700" text-anchor="middle">🗄️ Що зберігається в Vector DB</text>
+
+      <!-- Row header -->
+      <line x1="260" y1="332" x2="510" y2="332" stroke="rgba(248,113,113,0.3)"/>
+      <text x="280" y="344" fill="#94a3b8" font-size="8" font-family="monospace">id</text>
+      <text x="320" y="344" fill="#94a3b8" font-size="8" font-family="monospace">embedding (1536d)</text>
+      <text x="445" y="344" fill="#94a3b8" font-size="8" font-family="monospace">payload</text>
+
+      <!-- Row 1 -->
+      <text x="280" y="361" fill="#fde68a" font-size="9" font-family="monospace">42</text>
+      <text x="320" y="361" fill="#fbbf24" font-size="8" font-family="monospace">[0.11, -0.39, ...]</text>
+      <text x="445" y="361" fill="#86efac" font-size="8">{text: "Cython..."}</text>
+
+      <!-- Row 2 (highlighted = match) -->
+      <rect x="260" y="367" width="250" height="14" fill="rgba(34,197,94,0.15)" id="dd-match-row"/>
+      <text x="280" y="378" fill="#fde68a" font-size="9" font-family="monospace">17</text>
+      <text x="320" y="378" fill="#fbbf24" font-size="8" font-family="monospace">[0.13, -0.41, ...]</text>
+      <text x="445" y="378" fill="#86efac" font-size="8">{text: "Profile..."}</text>
+
+      <!-- Row 3 -->
+      <text x="280" y="395" fill="#fde68a" font-size="9" font-family="monospace">88</text>
+      <text x="320" y="395" fill="#fbbf24" font-size="8" font-family="monospace">[0.14, -0.38, ...]</text>
+      <text x="445" y="395" fill="#86efac" font-size="8">{text: "JIT compi..."}</text>
+
+      <!-- Row 4 (irrelevant) -->
+      <text x="280" y="412" fill="#fde68a" font-size="9" font-family="monospace">93</text>
+      <text x="320" y="412" fill="#475569" font-size="8" font-family="monospace">[-0.5, 0.7, ...]</text>
+      <text x="445" y="412" fill="#475569" font-size="8">{text: "PostgreSQL..."}</text>
+
+      <!-- explanation -->
+      <text x="385" y="438" fill="#94a3b8" font-size="9" text-anchor="middle">↓ HNSW знаходить top-K за cosine similarity</text>
+      <text x="385" y="452" fill="#4ade80" font-size="9" text-anchor="middle" font-weight="600">Текст бере не з embedding, а з payload!</text>
+    </g>
+
+    <line id="arr-dd-2" x1="530" y1="350" x2="590" y2="350" stroke="#475569" stroke-width="2" marker-end="url(#arrowOff)"/>
+
+    <!-- Box: retriever output -->
+    <g id="step-dd-out">
+      <rect x="595" y="300" width="285" height="160" rx="10" fill="rgba(16,185,129,0.12)" stroke="rgba(74,222,128,0.4)" id="box-dd-out"/>
+      <text x="737" y="320" fill="#86efac" font-size="11" font-weight="700" text-anchor="middle">📤 Що отримує retriever</text>
+
+      <!-- JSON-style output -->
+      <text x="610" y="345" fill="#cbd5e1" font-size="9" font-family="monospace">[</text>
+      <text x="615" y="358" fill="#cbd5e1" font-size="9" font-family="monospace">  {</text>
+      <text x="625" y="371" fill="#cbd5e1" font-size="9" font-family="monospace">    "id": 17, "score": 0.91,</text>
+      <text x="625" y="384" fill="#cbd5e1" font-size="9" font-family="monospace">    "text": "Profile cProfile..."</text>
+      <text x="615" y="397" fill="#cbd5e1" font-size="9" font-family="monospace">  },</text>
+      <text x="615" y="410" fill="#cbd5e1" font-size="9" font-family="monospace">  { "id": 42, "score": 0.87, ... },</text>
+      <text x="615" y="423" fill="#cbd5e1" font-size="9" font-family="monospace">  { "id": 88, "score": 0.84, ... },</text>
+      <text x="610" y="436" fill="#cbd5e1" font-size="9" font-family="monospace">]</text>
+      <text x="737" y="453" fill="#94a3b8" font-size="9" text-anchor="middle" font-style="italic">→ ці тексти йдуть у промпт LLM</text>
+    </g>
+
+    <!-- packet for deep-dive path -->
+    <circle id="packet-dd" cx="100" cy="350" r="0" fill="#fbbf24" opacity="0"/>
+
+    <!-- ============== ROW 4: як retriever передає в LLM ============== -->
+    <text x="450" y="495" fill="#94a3b8" font-size="11" text-anchor="middle" font-style="italic">
+      🤖 Як retriever формує промпт для LLM (RAG-pattern)
+    </text>
+
+    <!-- Box: retrieved chunks (input) -->
+    <g id="step-rag-chunks">
+      <rect x="20" y="510" width="180" height="190" rx="10" fill="rgba(16,185,129,0.12)" stroke="rgba(74,222,128,0.4)" id="box-rag-chunks"/>
+      <text x="110" y="530" fill="#86efac" font-size="11" font-weight="700" text-anchor="middle">📤 Top-3 chunks</text>
+      <text x="110" y="544" fill="#94a3b8" font-size="9" text-anchor="middle" font-style="italic">(з retriever)</text>
+
+      <!-- chunk 1 -->
+      <rect x="32" y="552" width="156" height="40" rx="4" fill="rgba(16,185,129,0.18)"/>
+      <text x="40" y="565" fill="#fbbf24" font-size="8" font-family="monospace">[1] id=17 score=0.91</text>
+      <text x="40" y="578" fill="#cbd5e1" font-size="8">"Profile cProfile shows</text>
+      <text x="40" y="588" fill="#cbd5e1" font-size="8">slow functions..."</text>
+
+      <!-- chunk 2 -->
+      <rect x="32" y="598" width="156" height="40" rx="4" fill="rgba(16,185,129,0.14)"/>
+      <text x="40" y="611" fill="#fbbf24" font-size="8" font-family="monospace">[2] id=42 score=0.87</text>
+      <text x="40" y="624" fill="#cbd5e1" font-size="8">"Cython compiles Python</text>
+      <text x="40" y="634" fill="#cbd5e1" font-size="8">to C for speed..."</text>
+
+      <!-- chunk 3 -->
+      <rect x="32" y="644" width="156" height="40" rx="4" fill="rgba(16,185,129,0.10)"/>
+      <text x="40" y="657" fill="#fbbf24" font-size="8" font-family="monospace">[3] id=88 score=0.84</text>
+      <text x="40" y="670" fill="#cbd5e1" font-size="8">"JIT via PyPy gives</text>
+      <text x="40" y="680" fill="#cbd5e1" font-size="8">~5x speedup..."</text>
+    </g>
+
+    <line id="arr-rag-1" x1="205" y1="605" x2="245" y2="605" stroke="#475569" stroke-width="2" marker-end="url(#arrowOff)"/>
+
+    <!-- Box: prompt assembly -->
+    <g id="step-rag-prompt">
+      <rect x="250" y="510" width="380" height="190" rx="10" fill="rgba(124,58,237,0.12)" stroke="rgba(167,139,250,0.4)" id="box-rag-prompt"/>
+      <text x="440" y="530" fill="#c4b5fd" font-size="11" font-weight="700" text-anchor="middle">🧩 Prompt assembly</text>
+
+      <!-- system role -->
+      <rect x="262" y="540" width="356" height="22" rx="3" fill="rgba(124,58,237,0.2)"/>
+      <text x="268" y="555" fill="#c4b5fd" font-size="8" font-family="monospace">role: "system"</text>
+      <text x="345" y="555" fill="#cbd5e1" font-size="8" font-family="monospace">"Відповідай ТІЛЬКИ за context"</text>
+
+      <!-- user with context -->
+      <rect x="262" y="566" width="356" height="105" rx="3" fill="rgba(217,119,6,0.15)"/>
+      <text x="268" y="580" fill="#fbbf24" font-size="8" font-family="monospace">role: "user"</text>
+      <text x="268" y="594" fill="#cbd5e1" font-size="8" font-family="monospace">&lt;context&gt;</text>
+      <text x="278" y="606" fill="#86efac" font-size="8" font-family="monospace">[1] Profile cProfile shows...</text>
+      <text x="278" y="617" fill="#86efac" font-size="8" font-family="monospace">[2] Cython compiles Python...</text>
+      <text x="278" y="628" fill="#86efac" font-size="8" font-family="monospace">[3] JIT via PyPy gives...</text>
+      <text x="268" y="640" fill="#cbd5e1" font-size="8" font-family="monospace">&lt;/context&gt;</text>
+      <text x="268" y="656" fill="#cbd5e1" font-size="8" font-family="monospace">Питання користувача:</text>
+      <text x="278" y="666" fill="#fde68a" font-size="8" font-family="monospace">"як прискорити Python код?"</text>
+
+      <!-- explanation -->
+      <text x="440" y="688" fill="#94a3b8" font-size="9" text-anchor="middle" font-style="italic">
+        Тексти + питання → структурований messages[]
+      </text>
+    </g>
+
+    <line id="arr-rag-2" x1="635" y1="605" x2="675" y2="605" stroke="#475569" stroke-width="2" marker-end="url(#arrowOff)"/>
+
+    <!-- Box: LLM call -->
+    <g id="step-rag-llm">
+      <rect x="680" y="510" width="200" height="190" rx="10" fill="url(#llmGrad)" opacity="0.4" id="box-rag-llm"/>
+      <text x="780" y="535" fill="white" font-size="12" font-weight="700" text-anchor="middle">🤖 LLM call</text>
+      <text x="780" y="552" fill="white" font-size="9" text-anchor="middle">claude.messages.create</text>
+      <text x="780" y="564" fill="white" font-size="9" text-anchor="middle">(messages=[...])</text>
+
+      <!-- Output answer with citations -->
+      <rect x="692" y="575" width="176" height="115" rx="5" fill="rgba(0,0,0,0.35)"/>
+      <text x="780" y="590" fill="#fde68a" font-size="9" text-anchor="middle" font-weight="600">💬 Згенерована відповідь:</text>
+      <text x="700" y="606" fill="#e2e8f0" font-size="8">«Щоб прискорити</text>
+      <text x="700" y="617" fill="#e2e8f0" font-size="8">Python:</text>
+      <text x="700" y="630" fill="#e2e8f0" font-size="8">1. Профілюй [1]</text>
+      <text x="700" y="643" fill="#e2e8f0" font-size="8">2. Скомпілюй у C [2]</text>
+      <text x="700" y="656" fill="#e2e8f0" font-size="8">3. PyPy дає 5×» [3]</text>
+      <text x="780" y="678" fill="#86efac" font-size="8" text-anchor="middle">↑ цитати = id chunks</text>
+    </g>
+
+    <!-- packet row 4 -->
+    <circle id="packet-rag" cx="110" cy="605" r="0" fill="#4ade80" opacity="0"/>
+  </svg>
+
+  <div class="hero-controls">
+    <button onclick="playHero()" id="hero-play">▶ Програти</button>
+    <button onclick="resetHero()" class="secondary">⟲ Reset</button>
+    <span class="hero-step-label" id="hero-step">Натисни «Програти»</span>
+  </div>
+
+  <div style="background: rgba(34,197,94,0.08); border-left: 4px solid #22c55e; border-radius: 8px; padding: 1rem 1.2rem; margin-top: 1.2rem;">
+    <strong style="color: #4ade80;">🔑 Ключовий момент:</strong>
+    <span style="color: #cbd5e1;">
+      Embedding — це <em>«адреса»</em> у векторному просторі, а не сам текст.
+      Vector DB зберігає 3 поля: <code>id</code>, <code>embedding</code> (для пошуку),
+      <code>payload</code> (з оригінальним текстом). Retriever знаходить найближчий вектор,
+      бере <strong>id</strong>, і повертає <strong>текст з payload</strong>.
+      Embedding не декодується назад у текст — це односторонній процес.
+    </span>
+  </div>
+
+  <details style="margin-top: 1rem; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 0.8rem 1.2rem;">
+    <summary style="cursor: pointer; color: #c4b5fd; font-weight: 600; font-size: 0.95rem;">
+      🛠️ Як це виглядає в коді: повний RAG-pipeline (klick для деталей)
+    </summary>
+<pre style="margin-top: 0.8rem;"><code>from anthropic import Anthropic
+from qdrant_client import QdrantClient
+from openai import OpenAI
+
+oai = OpenAI()
+qdrant = QdrantClient("localhost", port=6333)
+claude = Anthropic()
+
+def rag_answer(user_question: str) -&gt; str:
+    # 1. EMBED: текст питання → вектор
+    q_vector = oai.embeddings.create(
+        input=user_question,
+        model="text-embedding-3-small"
+    ).data[0].embedding
+
+    # 2. RETRIEVE: vector DB повертає top-3 з payload (текстом!)
+    results = qdrant.search(
+        collection_name="docs",
+        query_vector=q_vector,
+        limit=3,
+    )
+    # results = [
+    #   ScoredPoint(id=17, score=0.91, payload={"text": "Profile cProfile..."}),
+    #   ScoredPoint(id=42, score=0.87, payload={"text": "Cython compiles..."}),
+    #   ScoredPoint(id=88, score=0.84, payload={"text": "JIT via PyPy..."}),
+    # ]
+
+    # 3. ASSEMBLE PROMPT: склеюємо тексти в &lt;context&gt; з нумерацією
+    context = "\n".join([
+        f"[{i+1}] {r.payload['text']}"
+        for i, r in enumerate(results)
+    ])
+
+    messages = [
+        {
+            "role": "user",
+            "content": (
+                f"&lt;context&gt;\n{context}\n&lt;/context&gt;\n\n"
+                f"Відповідай ТІЛЬКИ на основі context. "
+                f"Цитуй джерела як [1] [2] [3].\n\n"
+                f"Питання: {user_question}"
+            )
+        }
+    ]
+
+    # 4. LLM: фінальна генерація з grounded-контекстом
+    response = claude.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=500,
+        system="Ти — асистент. Відповідай коротко і з посиланнями.",
+        messages=messages,
+    )
+    return response.content[0].text
+
+# Виклик:
+print(rag_answer("як прискорити Python код?"))
+# → «Щоб прискорити Python: 1) Профілюй коду через cProfile [1].
+#    2) Компілюй критичні функції в C через Cython [2].
+#    3) Використовуй PyPy — JIT дає ~5× прискорення [3].»</code></pre>
+  </details>
+</div>
+
+<nav class="toc">
+  <a href="#why"><span class="num">1.</span>Навіщо взагалі vector DB</a>
+  <a href="#three"><span class="num">2.</span>Три великі: Qdrant / FAISS / Pinecone</a>
+  <a href="#demo"><span class="num">3.</span>Інтерактив: пошук</a>
+  <a href="#index"><span class="num">4.</span>Типи індексів (HNSW, IVF, PQ)</a>
+  <a href="#choose"><span class="num">5.</span>Декомпозиція вибору</a>
+  <a href="#code"><span class="num">6.</span>Код: однакова задача — 3 БД</a>
+  <a href="#cost"><span class="num">7.</span>Вартість і scale</a>
+  <a href="#clouds"><span class="num">8.</span>AWS / GCP / Azure native</a>
+</nav>
+
+<!-- ============ 1. WHY ============ -->
+<section id="why">
+  <h2><span class="badge">1</span>Навіщо взагалі vector database</h2>
+
+  <p>
+    Embedding — це масив з 384 / 768 / 1536 / 3072 чисел (float). Один вектор — ~6 KB
+    (для 1536d float32). Мільйон векторів = ~6 GB. Питання: як знайти серед мільйона
+    той вектор, який <strong>найближчий</strong> до твого query-вектора?
+  </p>
+
+  <h3>Брутальний підхід (без БД)</h3>
+  <pre><code>import numpy as np
+
+vectors = np.load("all_vectors.npy")  # (1_000_000, 1536)
+query = embed("шукаю про Python")     # (1536,)
+
+# cosine similarity з кожним вектором
+scores = vectors @ query / (np.linalg.norm(vectors, axis=1) * np.linalg.norm(query))
+top10 = np.argsort(-scores)[:10]      # ← ~2-5 секунд на CPU</code></pre>
+
+  <p>
+    Це працює до ~100K векторів. Далі стає <strong>повільно</strong> і <strong>дорого
+    тримати в RAM</strong>. На 10M векторів — 60 GB RAM і 30+ секунд на запит. Ось тут
+    починається vector database.
+  </p>
+
+  <h3>Чому саме 100K — точка перелому</h3>
+  <p>
+    Нижче ~100K векторів звичайний <code>numpy.dot()</code> через всі вектори працює
+    достатньо швидко (50-200ms на запит), а вся складність vector DB (Docker, schema,
+    embeddings versioning, backup) — оверхед, який тобі не потрібен.
+  </p>
+
+  <table>
+    <tr>
+      <th>Векторів</th>
+      <th>RAM</th>
+      <th>Час 1 пошуку (M1 Pro)</th>
+      <th>Чи треба vector DB?</th>
+    </tr>
+    <tr>
+      <td>1K</td>
+      <td>6 MB</td>
+      <td>&lt; 5 ms</td>
+      <td><span class="no">❌ Точно ні</span></td>
+    </tr>
+    <tr>
+      <td>10K</td>
+      <td>60 MB</td>
+      <td>~15 ms</td>
+      <td><span class="no">❌ Ні</span></td>
+    </tr>
+    <tr>
+      <td>100K</td>
+      <td>600 MB</td>
+      <td>~150 ms</td>
+      <td><span class="partial">⚠️ Гранична зона</span></td>
+    </tr>
+    <tr>
+      <td>1M</td>
+      <td>6 GB</td>
+      <td>~1.5 sec</td>
+      <td><span class="yes">✅ Так</span></td>
+    </tr>
+    <tr>
+      <td>10M</td>
+      <td>60 GB</td>
+      <td>~15 sec</td>
+      <td><span class="yes">✅ Обов'язково</span></td>
+    </tr>
+  </table>
+
+  <h3>Повний приклад: semantic search без БД (30 рядків)</h3>
+  <pre><code>import numpy as np
+from openai import OpenAI
+
+oai = OpenAI()
+
+def embed(text: str) -&gt; np.ndarray:
+    resp = oai.embeddings.create(input=text, model="text-embedding-3-small")
+    return np.array(resp.data[0].embedding, dtype="float32")
+
+# === BUILD (раз на день у CI або при старті) ===
+docs = ["Python is a programming language.",
+        "Pandas is a data analysis library.",
+        # ... 50 000 документів
+       ]
+vectors = np.array([embed(d) for d in docs])
+np.savez("index.npz", vectors=vectors, docs=np.array(docs, dtype=object))
+
+# === SEARCH (у твоєму FastAPI handler) ===
+INDEX = np.load("index.npz", allow_pickle=True)
+vectors_norm = INDEX["vectors"] / np.linalg.norm(INDEX["vectors"], axis=1, keepdims=True)
+
+def search(query: str, top_k: int = 10):
+    q = embed(query)
+    q = q / np.linalg.norm(q)
+    scores = vectors_norm @ q                    # ← один matmul, дуже швидко
+    top_ids = np.argsort(-scores)[:top_k]
+    return [(INDEX["docs"][i], float(scores[i])) for i in top_ids]
+
+print(search("як прискорити Python"))</code></pre>
+
+  <p style="font-size: 0.9rem; color: #94a3b8;">
+    Це повноцінний semantic search. Жодного Docker, жодного API key до Pinecone,
+    жодного gRPC. Vector DB сюди — як ракета, щоб дістатися магазину.
+  </p>
+
+  <h3>5 причин, чому 100K — точка перелому</h3>
+  <ol>
+    <li><strong>RAM.</strong> До 600 MB — ОК на ноуті/контейнері. Далі починаєш конкурувати з самим додатком за пам'ять.</li>
+    <li><strong>Latency.</strong> До ~150ms — у межах прийнятного для веб-запиту. Далі користувач помічає лаг.</li>
+    <li><strong>Перебудова при оновленні.</strong> Кожен новий документ → переембедив → перезаписав весь .npz. До 100K — секунди, до 1M — хвилини.</li>
+    <li><strong>Filtering.</strong> <code>WHERE category='tech' AND user_id=42</code> — у numpy boolean mask, але стає некрасиво. Vector DB зробить нормально.</li>
+    <li><strong>Concurrency.</strong> Один процес з numpy ОК. 100 паралельних користувачів — треба shared memory або процес-сервер. БД це вже має.</li>
+  </ol>
+
+  <h3>Коли все ж брати vector DB до 100K</h3>
+  <table>
+    <tr>
+      <th>Сценарій</th>
+      <th>Чому БД виграє</th>
+    </tr>
+    <tr>
+      <td>Часті оновлення (інкрементально нові документи)</td>
+      <td>numpy → перезапис файла; БД → upsert одного вектора</td>
+    </tr>
+    <tr>
+      <td>Складні фільтри (geo, range, повнотекстовий)</td>
+      <td>numpy → boolean mask стає страшним</td>
+    </tr>
+    <tr>
+      <td>Multi-tenant (різні користувачі — різні дані)</td>
+      <td>numpy → один файл на tenant; БД → namespace/collection з коробки</td>
+    </tr>
+    <tr>
+      <td>Реплікація / HA</td>
+      <td>numpy → ти сам пишеш sync між інстансами</td>
+    </tr>
+    <tr>
+      <td>Persistence без переембедингу при рестарті</td>
+      <td>numpy → треба явно save/load; БД → автоматично</td>
+    </tr>
+  </table>
+
+  <div class="takeaway">
+    <strong>Простий тест:</strong> якщо твої вектори вміщуються в RAM і ти можеш
+    дозволити собі 100-200ms latency — починай з numpy. Перейдеш на Qdrant/Chroma/Pinecone,
+    коли реально впрешся в обмеження.
+  </div>
+
+  <div class="numbers">
+    <div class="num-card">
+      <div class="big">~6 KB</div>
+      <div class="lbl">1 вектор 1536d float32</div>
+    </div>
+    <div class="num-card">
+      <div class="big">~6 GB</div>
+      <div class="lbl">1M векторів сирих</div>
+    </div>
+    <div class="num-card">
+      <div class="big">&lt; 50 ms</div>
+      <div class="lbl">типовий latency vector DB</div>
+    </div>
+    <div class="num-card">
+      <div class="big">~10×</div>
+      <div class="lbl">економія RAM з квантизацією</div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Що дає vector DB:</strong>
+    (1) індекс для швидкого approximate nearest neighbor (ANN) пошуку,
+    (2) фільтрацію за метаданими (<code>category=tech AND lang=uk</code>),
+    (3) persistence на диск, (4) масштабування на шарди, (5) update/delete окремих векторів.
+  </div>
+</section>
+
+<!-- ============ 2. THREE BIG ============ -->
+<section id="three">
+  <h2><span class="badge">2</span>Qdrant, FAISS, Pinecone, Chroma — у чому різниця</h2>
+
+  <p>Це чотири РІЗНІ категорії інструментів, які часто плутають:</p>
+
+  <div class="brand-grid">
+    <div class="brand-card faiss">
+      <div class="logo">FAISS</div>
+      <div class="tagline">Бібліотека від Meta. Це не БД, а набір індексів.</div>
+      <p style="font-size: 0.88rem;">In-memory C++ бібліотека. Найшвидші ANN-індекси у світі. Ти сам відповідаєш за persistence, оновлення, фільтрацію, шардинг.</p>
+      <h4 class="pros">✅ Плюси</h4>
+      <ul class="pros">
+        <li>Безкоштовна, open-source</li>
+        <li>Найшвидша (особливо на GPU)</li>
+        <li>Багатий вибір індексів</li>
+      </ul>
+      <h4 class="cons">❌ Мінуси</h4>
+      <ul class="cons">
+        <li>Не БД — нема CRUD, фільтрів</li>
+        <li>Сам пишеш save/load</li>
+        <li>Складно шардувати</li>
+      </ul>
+    </div>
+
+    <div class="brand-card qdrant">
+      <div class="logo">Qdrant</div>
+      <div class="tagline">Open-source vector DB. Self-hosted або managed.</div>
+      <p style="font-size: 0.88rem;">Написана на Rust. Повноцінна БД з REST/gRPC API. Запускається в Docker за 30 секунд. Є managed-варіант (Qdrant Cloud).</p>
+      <h4 class="pros">✅ Плюси</h4>
+      <ul class="pros">
+        <li>Open-source — твої дані</li>
+        <li>Швидка фільтрація за payload</li>
+        <li>Локально для розробки</li>
+      </ul>
+      <h4 class="cons">❌ Мінуси</h4>
+      <ul class="cons">
+        <li>Сам деплоїш / моніториш</li>
+        <li>Шардинг ручний</li>
+        <li>Менша ecosystem ніж Pinecone</li>
+      </ul>
+    </div>
+
+    <div class="brand-card pinecone">
+      <div class="logo">Pinecone</div>
+      <div class="tagline">Managed serverless. Платиш — отримуєш API.</div>
+      <p style="font-size: 0.88rem;">Закрите рішення. Створюєш index у веб-UI, отримуєш URL і API key. Все scaling / repair / backup — на боці Pinecone.</p>
+      <h4 class="pros">✅ Плюси</h4>
+      <ul class="pros">
+        <li>Zero ops — все managed</li>
+        <li>Auto-scaling серверлес</li>
+        <li>Швидкий старт</li>
+      </ul>
+      <h4 class="cons">❌ Мінуси</h4>
+      <ul class="cons">
+        <li>Vendor lock-in</li>
+        <li>Дорого на великих масштабах</li>
+        <li>Не self-hostable</li>
+      </ul>
+    </div>
+
+    <div class="brand-card chroma">
+      <div class="logo">Chroma</div>
+      <div class="tagline">«SQLite для embeddings». AI-first, для швидких прототипів.</div>
+      <p style="font-size: 0.88rem;">Open-source, написана на Python+Rust. Запускається в одному рядку <code>chromadb.Client()</code>. Глибока інтеграція з LangChain і LlamaIndex.</p>
+      <h4 class="pros">✅ Плюси</h4>
+      <ul class="pros">
+        <li>Найшвидший «pip install» старт</li>
+        <li>Embedded mode (in-process)</li>
+        <li>Best DX для AI-розробників</li>
+      </ul>
+      <h4 class="cons">❌ Мінуси</h4>
+      <ul class="cons">
+        <li>Молодший за Qdrant — менше battle-tested</li>
+        <li>Слабше масштабується (&gt; 10M)</li>
+        <li>Cluster mode тільки в Chroma Cloud</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Ключове розрізнення</h3>
+  <table>
+    <tr>
+      <th>Критерій</th>
+      <th>FAISS</th>
+      <th>Qdrant</th>
+      <th>Pinecone</th>
+      <th>Chroma</th>
+    </tr>
+    <tr>
+      <td>Тип</td>
+      <td>Бібліотека (Python/C++)</td>
+      <td>Database (server)</td>
+      <td>Managed cloud сервіс</td>
+      <td>Embedded або server</td>
+    </tr>
+    <tr>
+      <td>Open-source</td>
+      <td><span class="yes">✓</span></td>
+      <td><span class="yes">✓</span></td>
+      <td><span class="no">✗</span></td>
+      <td><span class="yes">✓</span></td>
+    </tr>
+    <tr>
+      <td>REST/gRPC API</td>
+      <td><span class="no">✗</span></td>
+      <td><span class="yes">✓</span></td>
+      <td><span class="yes">✓</span></td>
+      <td><span class="yes">✓ REST</span></td>
+    </tr>
+    <tr>
+      <td>Фільтрація за метаданими</td>
+      <td><span class="partial">~ обмежено</span></td>
+      <td><span class="yes">✓ потужна</span></td>
+      <td><span class="yes">✓</span></td>
+      <td><span class="yes">✓ where-filters</span></td>
+    </tr>
+    <tr>
+      <td>Persistence</td>
+      <td>Через save_index()</td>
+      <td><span class="yes">✓ автомат</span></td>
+      <td><span class="yes">✓ managed</span></td>
+      <td><span class="yes">✓ DuckDB+Parquet</span></td>
+    </tr>
+    <tr>
+      <td>Update / delete</td>
+      <td><span class="partial">~ rebuild</span></td>
+      <td><span class="yes">✓</span></td>
+      <td><span class="yes">✓</span></td>
+      <td><span class="yes">✓</span></td>
+    </tr>
+    <tr>
+      <td>GPU</td>
+      <td><span class="yes">✓ топ</span></td>
+      <td><span class="no">✗ (поки)</span></td>
+      <td><span class="no">✗</span></td>
+      <td><span class="no">✗</span></td>
+    </tr>
+    <tr>
+      <td>Multi-tenant</td>
+      <td><span class="no">✗ сам</span></td>
+      <td><span class="yes">✓ collections</span></td>
+      <td><span class="yes">✓ namespaces</span></td>
+      <td><span class="yes">✓ collections</span></td>
+    </tr>
+    <tr>
+      <td>Hybrid search (sparse+dense)</td>
+      <td><span class="no">✗</span></td>
+      <td><span class="yes">✓</span></td>
+      <td><span class="yes">✓</span></td>
+      <td><span class="partial">~ через LangChain</span></td>
+    </tr>
+    <tr>
+      <td>Free tier</td>
+      <td><span class="yes">✓ повна</span></td>
+      <td><span class="yes">✓ Cloud 1 GB</span></td>
+      <td><span class="yes">✓ 1 index</span></td>
+      <td><span class="yes">✓ повна локально</span></td>
+    </tr>
+    <tr>
+      <td>Recommended scale</td>
+      <td>будь-який (ти керуєш)</td>
+      <td>1M – 1B+</td>
+      <td>1M – 100M+</td>
+      <td>до 1-5M</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ============ 3. INTERACTIVE DEMO ============ -->
+<section id="demo">
+  <h2><span class="badge">3</span>Інтерактив: vector search вживу</h2>
+
+  <p>
+    Ось мікро-«база» з 12 документів про різні теми. Введи запит — побачиш, які
+    повертаються найрелевантніші. Embedding симулюється семантично через keyword-тематики.
+  </p>
+
+  <div class="vector-demo">
+    <div class="suggest-chips">
+      <span class="chip" onclick="setQuery('як прискорити Python код')">як прискорити Python код</span>
+      <span class="chip" onclick="setQuery('кошти на хмару')">кошти на хмару</span>
+      <span class="chip" onclick="setQuery('навчання нейромережі')">навчання нейромережі</span>
+      <span class="chip" onclick="setQuery('баг у застосунку')">баг у застосунку</span>
+      <span class="chip" onclick="setQuery('кулінарні рецепти')">кулінарні рецепти</span>
+    </div>
+
+    <div class="demo-controls">
+      <input type="text" id="queryInput" placeholder="Введи запит українською..." onkeydown="if(event.key==='Enter') runSearch()">
+      <button onclick="runSearch()">🔍 Шукати</button>
+    </div>
+
+    <div id="searchResults"></div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Зверни увагу:</strong> запит «<em>прискорити Python</em>» повертає не тільки
+    документи зі словом «Python», а й про оптимізацію алгоритмів і профайлінг.
+    Це <em>семантичний</em> пошук — те, чого keyword-search (Elasticsearch BM25)
+    не вміє з коробки.
+  </div>
+</section>
+
+<!-- ============ 4. INDEX TYPES ============ -->
+<section id="index">
+  <h2><span class="badge">4</span>Типи індексів — як працює ANN</h2>
+
+  <p>
+    Точний пошук серед мільйона векторів — повільний. Тому використовують
+    <strong>Approximate Nearest Neighbor (ANN)</strong> — індекси, які жертвують
+    1-3% точності заради ×100 швидкості.
+  </p>
+
+  <div class="index-grid">
+    <!-- FLAT -->
+    <div class="index-card flat">
+      <div class="name">Flat (brute-force)</div>
+      <div class="stats">
+        <span class="stat-pill">точність 100%</span>
+        <span class="stat-pill">швидкість ❌</span>
+        <span class="stat-pill">RAM 100%</span>
+      </div>
+      <p style="font-size: 0.85rem;">Перебір усіх векторів. Baseline для порівнянь. До ~100K — ОК.</p>
+      <div class="index-anim">
+        <svg viewBox="0 0 280 140" id="anim-flat">
+          <!-- query marker top-left -->
+          <circle cx="20" cy="20" r="6" class="query-marker"/>
+          <text x="32" y="24" fill="#f87171" font-size="9">query</text>
+          <!-- 30 vectors in grid -->
+          <g id="flat-dots"></g>
+          <!-- moving scanner highlight -->
+          <circle id="flat-scanner" cx="0" cy="0" r="9" class="scan-ring" style="opacity: 1;"/>
+        </svg>
+        <div class="anim-caption">Сканує КОЖЕН вектор по черзі</div>
+      </div>
+    </div>
+
+    <!-- IVF -->
+    <div class="index-card ivf">
+      <div class="name">IVF (Inverted File)</div>
+      <div class="stats">
+        <span class="stat-pill">точність ~95%</span>
+        <span class="stat-pill">швидкість ⚡⚡</span>
+        <span class="stat-pill">RAM 100%</span>
+      </div>
+      <p style="font-size: 0.85rem;">Кластеризує вектори (k-means), пошук йде тільки в найближчих кластерах. Швидкий build, ОК для статичних даних.</p>
+      <div class="index-anim">
+        <svg viewBox="0 0 280 140" id="anim-ivf">
+          <!-- 4 cluster regions (Voronoi-like) -->
+          <g id="ivf-regions">
+            <circle cx="70" cy="45" r="32" fill="rgba(99,102,241,0.06)" stroke="rgba(99,102,241,0.25)" stroke-dasharray="3,2"/>
+            <circle cx="200" cy="40" r="32" fill="rgba(99,102,241,0.06)" stroke="rgba(99,102,241,0.25)" stroke-dasharray="3,2"/>
+            <circle cx="65" cy="100" r="30" fill="rgba(99,102,241,0.06)" stroke="rgba(99,102,241,0.25)" stroke-dasharray="3,2"/>
+            <circle cx="200" cy="105" r="34" fill="rgba(99,102,241,0.06)" stroke="rgba(99,102,241,0.25)" stroke-dasharray="3,2"/>
+          </g>
+          <!-- centroids -->
+          <g id="ivf-centroids">
+            <rect x="66" y="41" width="8" height="8" fill="#a855f7"/>
+            <rect x="196" y="36" width="8" height="8" fill="#a855f7"/>
+            <rect x="61" y="96" width="8" height="8" fill="#a855f7"/>
+            <rect x="196" y="101" width="8" height="8" fill="#a855f7"/>
+          </g>
+          <!-- vectors -->
+          <g id="ivf-dots"></g>
+          <!-- query marker (moves to nearest centroid) -->
+          <circle id="ivf-query" cx="140" cy="70" r="6" class="query-marker"/>
+        </svg>
+        <div class="anim-caption">Знаходить найближчий кластер → сканує тільки його</div>
+      </div>
+    </div>
+
+    <!-- HNSW -->
+    <div class="index-card hnsw">
+      <div class="name">HNSW (граф)</div>
+      <div class="stats">
+        <span class="stat-pill">точність ~98%</span>
+        <span class="stat-pill">швидкість ⚡⚡⚡</span>
+        <span class="stat-pill">RAM 130%</span>
+      </div>
+      <p style="font-size: 0.85rem;">Hierarchical Navigable Small World. Багатошаровий граф зв'язків. <strong>Дефолт у Qdrant, Pinecone, Milvus.</strong> Найкращий баланс.</p>
+      <div class="index-anim">
+        <svg viewBox="0 0 280 140" id="anim-hnsw">
+          <!-- 3 layers -->
+          <text x="4" y="22" fill="#94a3b8" font-size="8">L2</text>
+          <text x="4" y="68" fill="#94a3b8" font-size="8">L1</text>
+          <text x="4" y="118" fill="#94a3b8" font-size="8">L0</text>
+          <!-- L2: 3 nodes, sparse -->
+          <line x1="40" y1="20" x2="140" y2="20" stroke="#a855f7" stroke-width="1"/>
+          <line x1="140" y1="20" x2="240" y2="20" stroke="#a855f7" stroke-width="1"/>
+          <circle cx="40" cy="20" r="4" fill="#a855f7"/>
+          <circle cx="140" cy="20" r="4" fill="#a855f7"/>
+          <circle cx="240" cy="20" r="4" fill="#a855f7"/>
+          <!-- L1: 6 nodes -->
+          <g stroke="#6366f1" stroke-width="0.8">
+            <line x1="40" y1="65" x2="90" y2="65"/>
+            <line x1="90" y1="65" x2="140" y2="65"/>
+            <line x1="140" y1="65" x2="190" y2="65"/>
+            <line x1="190" y1="65" x2="240" y2="65"/>
+            <line x1="40" y1="65" x2="140" y2="65" stroke-dasharray="2,2"/>
+            <line x1="140" y1="65" x2="240" y2="65" stroke-dasharray="2,2"/>
+          </g>
+          <g fill="#6366f1">
+            <circle cx="40" cy="65" r="3.5"/>
+            <circle cx="90" cy="65" r="3.5"/>
+            <circle cx="140" cy="65" r="3.5"/>
+            <circle cx="190" cy="65" r="3.5"/>
+            <circle cx="240" cy="65" r="3.5"/>
+          </g>
+          <!-- L0: dense -->
+          <g stroke="#22c55e" stroke-width="0.6">
+            <line x1="20" y1="115" x2="50" y2="115"/>
+            <line x1="50" y1="115" x2="80" y2="115"/>
+            <line x1="80" y1="115" x2="110" y2="115"/>
+            <line x1="110" y1="115" x2="140" y2="115"/>
+            <line x1="140" y1="115" x2="170" y2="115"/>
+            <line x1="170" y1="115" x2="200" y2="115"/>
+            <line x1="200" y1="115" x2="230" y2="115"/>
+            <line x1="230" y1="115" x2="260" y2="115"/>
+            <line x1="50" y1="115" x2="110" y2="115"/>
+            <line x1="170" y1="115" x2="230" y2="115"/>
+          </g>
+          <g fill="#22c55e">
+            <circle cx="20" cy="115" r="3"/>
+            <circle cx="50" cy="115" r="3"/>
+            <circle cx="80" cy="115" r="3"/>
+            <circle cx="110" cy="115" r="3"/>
+            <circle cx="140" cy="115" r="3"/>
+            <circle cx="170" cy="115" r="3"/>
+            <circle cx="200" cy="115" r="3"/>
+            <circle cx="230" cy="115" r="3"/>
+            <circle cx="260" cy="115" r="3"/>
+          </g>
+          <!-- vertical hops -->
+          <line x1="40" y1="20" x2="40" y2="65" stroke="#94a3b8" stroke-dasharray="2,2" opacity="0.3"/>
+          <line x1="140" y1="20" x2="140" y2="65" stroke="#94a3b8" stroke-dasharray="2,2" opacity="0.3"/>
+          <line x1="240" y1="20" x2="240" y2="65" stroke="#94a3b8" stroke-dasharray="2,2" opacity="0.3"/>
+          <line x1="140" y1="65" x2="140" y2="115" stroke="#94a3b8" stroke-dasharray="2,2" opacity="0.3"/>
+          <line x1="190" y1="65" x2="200" y2="115" stroke="#94a3b8" stroke-dasharray="2,2" opacity="0.3"/>
+          <!-- target -->
+          <circle cx="170" cy="115" r="6" fill="none" stroke="#ef4444" stroke-width="2"/>
+          <!-- traveling marker -->
+          <circle id="hnsw-marker" cx="40" cy="20" r="5" fill="#fbbf24" stroke="#fff" stroke-width="1.5"/>
+        </svg>
+        <div class="anim-caption">Стрибає згори вниз: довгі хопи на L2 → точність на L0</div>
+      </div>
+    </div>
+
+    <!-- PQ -->
+    <div class="index-card pq">
+      <div class="name">PQ / Quantization</div>
+      <div class="stats">
+        <span class="stat-pill">точність ~92%</span>
+        <span class="stat-pill">швидкість ⚡⚡</span>
+        <span class="stat-pill">RAM 10%</span>
+      </div>
+      <p style="font-size: 0.85rem;">Product Quantization — стискає вектори в 8-32× менше байт. Комбінують з HNSW (HNSW+PQ) для великих обсягів.</p>
+      <div class="index-anim">
+        <svg viewBox="0 0 280 140" id="anim-pq">
+          <!-- Original vector: 8 floats as wide bars -->
+          <text x="4" y="22" fill="#94a3b8" font-size="8">оригінал (32 byte)</text>
+          <g id="pq-original">
+            <rect x="10" y="30" width="32" height="14" fill="#6366f1" rx="2"/>
+            <rect x="44" y="30" width="32" height="14" fill="#818cf8" rx="2"/>
+            <rect x="78" y="30" width="32" height="14" fill="#a855f7" rx="2"/>
+            <rect x="112" y="30" width="32" height="14" fill="#c084fc" rx="2"/>
+            <rect x="146" y="30" width="32" height="14" fill="#6366f1" rx="2"/>
+            <rect x="180" y="30" width="32" height="14" fill="#818cf8" rx="2"/>
+            <rect x="214" y="30" width="32" height="14" fill="#a855f7" rx="2"/>
+            <rect x="248" y="30" width="22" height="14" fill="#c084fc" rx="2"/>
+          </g>
+          <!-- Arrow down -->
+          <path d="M 140 55 L 140 75 M 134 69 L 140 75 L 146 69" stroke="#fbbf24" stroke-width="2" fill="none" id="pq-arrow"/>
+          <text x="150" y="70" fill="#fbbf24" font-size="9">PQ</text>
+          <!-- Compressed: 4 small bars -->
+          <text x="4" y="100" fill="#94a3b8" font-size="8">стиснено (4 byte)</text>
+          <g id="pq-compressed">
+            <rect x="60" y="108" width="16" height="14" fill="#22c55e" rx="2"/>
+            <rect x="78" y="108" width="16" height="14" fill="#16a34a" rx="2"/>
+            <rect x="96" y="108" width="16" height="14" fill="#22c55e" rx="2"/>
+            <rect x="114" y="108" width="16" height="14" fill="#16a34a" rx="2"/>
+          </g>
+          <text x="140" y="119" fill="#4ade80" font-size="11" font-weight="bold">8× менше</text>
+        </svg>
+        <div class="anim-caption">Розбиває на під-вектори → кодує номером з кодбука</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Як працює HNSW (спрощено)</h3>
+  <div class="vector-viz">
+    <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+      <!-- Layer 3 (top) -->
+      <text x="20" y="40" fill="#94a3b8" font-size="11">L2 (sparse)</text>
+      <line x1="120" y1="35" x2="540" y2="35" stroke="#475569" stroke-dasharray="2,3"/>
+      <circle cx="120" cy="35" r="6" fill="#a855f7"/>
+      <circle cx="320" cy="35" r="6" fill="#a855f7"/>
+      <circle cx="540" cy="35" r="6" fill="#a855f7"/>
+      <line x1="120" y1="35" x2="320" y2="35" stroke="#a855f7" stroke-width="1.5"/>
+      <line x1="320" y1="35" x2="540" y2="35" stroke="#a855f7" stroke-width="1.5"/>
+
+      <!-- Layer 2 (middle) -->
+      <text x="20" y="125" fill="#94a3b8" font-size="11">L1</text>
+      <line x1="120" y1="120" x2="540" y2="120" stroke="#475569" stroke-dasharray="2,3"/>
+      <circle cx="120" cy="120" r="5" fill="#6366f1"/>
+      <circle cx="220" cy="120" r="5" fill="#6366f1"/>
+      <circle cx="320" cy="120" r="5" fill="#6366f1"/>
+      <circle cx="420" cy="120" r="5" fill="#6366f1"/>
+      <circle cx="540" cy="120" r="5" fill="#6366f1"/>
+      <line x1="120" y1="120" x2="220" y2="120" stroke="#6366f1" stroke-width="1"/>
+      <line x1="220" y1="120" x2="320" y2="120" stroke="#6366f1" stroke-width="1"/>
+      <line x1="320" y1="120" x2="420" y2="120" stroke="#6366f1" stroke-width="1"/>
+      <line x1="420" y1="120" x2="540" y2="120" stroke="#6366f1" stroke-width="1"/>
+      <line x1="220" y1="120" x2="420" y2="120" stroke="#6366f1" stroke-width="0.7" stroke-dasharray="3,3"/>
+
+      <!-- Layer 0 (bottom, dense) -->
+      <text x="20" y="220" fill="#94a3b8" font-size="11">L0 (dense)</text>
+      <line x1="120" y1="215" x2="540" y2="215" stroke="#475569" stroke-dasharray="2,3"/>
+      <g fill="#22c55e">
+        <circle cx="120" cy="215" r="4"/>
+        <circle cx="170" cy="215" r="4"/>
+        <circle cx="220" cy="215" r="4"/>
+        <circle cx="270" cy="215" r="4"/>
+        <circle cx="320" cy="215" r="4"/>
+        <circle cx="370" cy="215" r="4"/>
+        <circle cx="420" cy="215" r="4"/>
+        <circle cx="470" cy="215" r="4"/>
+        <circle cx="540" cy="215" r="4"/>
+      </g>
+      <g stroke="#22c55e" stroke-width="0.8">
+        <line x1="120" y1="215" x2="170" y2="215"/>
+        <line x1="170" y1="215" x2="220" y2="215"/>
+        <line x1="220" y1="215" x2="270" y2="215"/>
+        <line x1="270" y1="215" x2="320" y2="215"/>
+        <line x1="320" y1="215" x2="370" y2="215"/>
+        <line x1="370" y1="215" x2="420" y2="215"/>
+        <line x1="420" y1="215" x2="470" y2="215"/>
+        <line x1="470" y1="215" x2="540" y2="215"/>
+        <line x1="170" y1="215" x2="270" y2="215"/>
+        <line x1="270" y1="215" x2="370" y2="215"/>
+        <line x1="370" y1="215" x2="470" y2="215"/>
+      </g>
+
+      <!-- Vertical links between layers -->
+      <line x1="120" y1="35" x2="120" y2="120" stroke="#94a3b8" stroke-dasharray="2,2" opacity="0.4"/>
+      <line x1="120" y1="120" x2="120" y2="215" stroke="#94a3b8" stroke-dasharray="2,2" opacity="0.4"/>
+      <line x1="320" y1="35" x2="320" y2="120" stroke="#94a3b8" stroke-dasharray="2,2" opacity="0.4"/>
+      <line x1="320" y1="120" x2="320" y2="215" stroke="#94a3b8" stroke-dasharray="2,2" opacity="0.4"/>
+      <line x1="540" y1="35" x2="540" y2="120" stroke="#94a3b8" stroke-dasharray="2,2" opacity="0.4"/>
+      <line x1="540" y1="120" x2="540" y2="215" stroke="#94a3b8" stroke-dasharray="2,2" opacity="0.4"/>
+
+      <!-- Search path -->
+      <circle cx="120" cy="35" r="9" fill="none" stroke="#fbbf24" stroke-width="2"/>
+      <circle cx="320" cy="35" r="9" fill="none" stroke="#fbbf24" stroke-width="2"/>
+      <circle cx="320" cy="120" r="8" fill="none" stroke="#fbbf24" stroke-width="2"/>
+      <circle cx="370" cy="215" r="7" fill="none" stroke="#fbbf24" stroke-width="2"/>
+      <text x="370" y="255" fill="#fbbf24" font-size="11" text-anchor="middle">target</text>
+      <text x="120" y="20" fill="#fbbf24" font-size="11" text-anchor="middle">start</text>
+
+      <!-- Title -->
+      <text x="350" y="275" fill="#94a3b8" font-size="11" text-anchor="middle" font-style="italic">
+        Зверху — мало вузлів, далекі стрибки. Знизу — багато вузлів, точний пошук.
+      </text>
+    </svg>
+  </div>
+
+  <h4>Аналогія для розуміння</h4>
+  <p>
+    Уяви, що тобі треба знайти конкретну вулицю в незнайомому місті. Поганий
+    варіант — обходити кожну вулицю. Розумний варіант:
+  </p>
+  <ol>
+    <li><strong>Літак</strong> (L2) — летиш над країною, бачиш міста. Вибираєш найближче місто до цілі.</li>
+    <li><strong>Машина по трасі</strong> (L1) — приїхав у місто, рухаєшся головними проспектами до потрібного району.</li>
+    <li><strong>Пішки по кварталах</strong> (L0) — у районі — обходиш сусідні вулиці, знаходиш точну адресу.</li>
+  </ol>
+  <p>
+    Так само працює HNSW: <strong>«літак» — це L2</strong>, де мало вузлів і дуже довгі
+    зв'язки. <strong>«Машина» — L1</strong>, середня щільність. <strong>«Пішки» — L0</strong>,
+    де <em>усі</em> вектори і короткі зв'язки до сусідів.
+  </p>
+
+  <h4>Як алгоритм будує граф (insert)</h4>
+  <ol>
+    <li><strong>Кинь монетку</strong> для нового вектора — з імовірністю ~1/16 він потрапляє на L1, з ~1/256 — на L2 (експоненційний розподіл по рівнях).</li>
+    <li><strong>На кожному рівні</strong>, де новий вектор «живе», знайди його M найближчих сусідів і з'єднай ребрами.</li>
+    <li>Параметр <code>M</code> = скільки сусідів зберігати (зазвичай 16-64). Більше M → точніше, але більше RAM.</li>
+    <li>Параметр <code>ef_construction</code> = скільки кандидатів перебирати при insert (64-512). Більше → краща якість графа, але повільніший build.</li>
+  </ol>
+
+  <h4>Як працює пошук (search)</h4>
+  <ol>
+    <li><strong>Старт з фіксованого вузла</strong> на верхньому рівні (L2).</li>
+    <li><strong>Greedy жадібний обхід</strong>: на поточному рівні дивись на всіх сусідів, перейди до того, хто <em>ближчий</em> до query. Повторюй, поки сусіди не стають дальшими — це локальний мінімум.</li>
+    <li><strong>«Спустись» на рівень нижче</strong> через той самий вузол. Повтори greedy-обхід.</li>
+    <li><strong>На L0</strong> зроби <em>розширений</em> пошук: тримай кандидатів у пріоритетній черзі розміру <code>ef_search</code>. Більше ef_search → точніше, але повільніше.</li>
+    <li>Поверни top-K найближчих з фінальної черги.</li>
+  </ol>
+
+  <h4>Складність</h4>
+  <div class="numbers">
+    <div class="num-card">
+      <div class="big">O(log N)</div>
+      <div class="lbl">кроків на пошук</div>
+    </div>
+    <div class="num-card">
+      <div class="big">O(N log N)</div>
+      <div class="lbl">час на побудову</div>
+    </div>
+    <div class="num-card">
+      <div class="big">~M·N·8 byte</div>
+      <div class="lbl">RAM на сам граф (без векторів)</div>
+    </div>
+    <div class="num-card">
+      <div class="big">~98%</div>
+      <div class="lbl">recall@10 на типових ef_search=128</div>
+    </div>
+  </div>
+
+  <h4>Ключові параметри HNSW (Qdrant / pgvector / FAISS)</h4>
+  <table>
+    <tr>
+      <th>Параметр</th>
+      <th>Що означає</th>
+      <th>Дефолт</th>
+      <th>Trade-off</th>
+    </tr>
+    <tr>
+      <td><code>M</code></td>
+      <td>Макс. сусідів на вузол на L1+ (на L0 = 2×M)</td>
+      <td>16</td>
+      <td>↑ → точніше + більше RAM (~30% на крок)</td>
+    </tr>
+    <tr>
+      <td><code>ef_construction</code></td>
+      <td>Розмір кандидатної черги при insert</td>
+      <td>64-128</td>
+      <td>↑ → кращий граф, повільніший build</td>
+    </tr>
+    <tr>
+      <td><code>ef_search</code> (runtime)</td>
+      <td>Розмір кандидатної черги при query на L0</td>
+      <td>64-256</td>
+      <td>↑ → вище recall, повільніший search</td>
+    </tr>
+    <tr>
+      <td><code>m_L</code> (level multiplier)</td>
+      <td>Параметр експоненції для рівнів</td>
+      <td>1/ln(M)</td>
+      <td>Майже ніколи не міняють</td>
+    </tr>
+  </table>
+
+  <h4>Чому HNSW — дефолт у Qdrant, Pinecone, Milvus, pgvector, ElasticSearch</h4>
+  <ul>
+    <li><strong>~98% recall</strong> при швидкості ×100-1000 від brute-force на 10M+ векторах</li>
+    <li><strong>Підтримує incremental insert</strong> — не треба rebuild при додаванні нових векторів (на відміну від IVF)</li>
+    <li><strong>Передбачуваний latency</strong> O(log N) — навіть на 1B векторах пошук &lt; 100ms</li>
+    <li><strong>Параметри прозорі</strong> — можна тюнити швидкість/точність на льоту через ef_search без перебудови</li>
+  </ul>
+
+  <div class="warning">
+    <strong>Trade-offs HNSW:</strong>
+    <ul style="margin-top: 0.5rem;">
+      <li><strong>~30% більше RAM</strong> ніж сирі вектори (граф зберігається в пам'яті). Для 10M × 1536d float32 = ~60 GB векторів + ~18 GB граф.</li>
+      <li><strong>Видалення проблемне</strong> — графи не люблять delete. У Qdrant використовується «soft delete» + періодичний rebuild.</li>
+      <li><strong>Cold start повільний</strong> — після рестарту треба завантажити весь граф у RAM (10-60 сек на 10M векторів).</li>
+      <li><strong>Filtered search складний</strong> — якщо фільтр викидає 90% векторів, граф може «розпастися», обхід стає неефективним. Qdrant і pgvector мають окремі стратегії pre-filter / post-filter.</li>
+    </ul>
+  </div>
+
+  <h4>Коли HNSW — НЕ найкращий вибір</h4>
+  <ul>
+    <li><strong>&lt; 100K векторів</strong> — flat brute-force швидший і точніший</li>
+    <li><strong>Дуже мало RAM</strong> — використай IVF + PQ (10× менше пам'яті ціною ~5% recall)</li>
+    <li><strong>Часті масові оновлення</strong> (перебудова всього індексу щодня) — IVF будується швидше</li>
+    <li><strong>&gt; 1B векторів</strong> — DiskANN (Microsoft) тримає більшу частину графа на SSD з мінімальною втратою якості</li>
+  </ul>
+</section>
+
+<!-- ============ 5. CHOOSE ============ -->
+<section id="choose">
+  <h2><span class="badge">5</span>Інтерактив: яку БД обрати під твою задачу</h2>
+
+  <p>Натисни відповіді — отримаєш персональну рекомендацію:</p>
+
+  <div class="decision-tree">
+    <div class="decision-question">
+      <div class="q">Q1: Розмір датасету?</div>
+      <div class="decision-buttons" data-q="size">
+        <button data-val="small">&lt; 100K векторів</button>
+        <button data-val="medium">100K – 10M</button>
+        <button data-val="large">&gt; 10M</button>
+      </div>
+    </div>
+
+    <div class="decision-question">
+      <div class="q">Q2: Чи готовий запускати власний сервер (Docker / k8s)?</div>
+      <div class="decision-buttons" data-q="ops">
+        <button data-val="yes">Так, маю DevOps ресурс</button>
+        <button data-val="no">Ні, хочу managed</button>
+        <button data-val="prototype">Зараз прототип, потім розберусь</button>
+      </div>
+    </div>
+
+    <div class="decision-question">
+      <div class="q">Q3: Бюджет на місяць?</div>
+      <div class="decision-buttons" data-q="budget">
+        <button data-val="zero">$0 (хобі / навчання)</button>
+        <button data-val="low">&lt; $100</button>
+        <button data-val="mid">$100 – $1000</button>
+        <button data-val="high">$1000+</button>
+      </div>
+    </div>
+
+    <div class="decision-question">
+      <div class="q">Q4: Чи потрібна складна фільтрація (за метаданими, geo, дата)?</div>
+      <div class="decision-buttons" data-q="filter">
+        <button data-val="yes">Так, обов'язково</button>
+        <button data-val="basic">Базова фільтрація</button>
+        <button data-val="no">Тільки vector search</button>
+      </div>
+    </div>
+
+    <div class="recommendation" id="recommendation">
+      <div class="rec-title">👉 Обери відповіді щоб отримати рекомендацію</div>
+      <p style="margin: 0; font-size: 0.9rem; color: #cbd5e1;">
+        Відповіді на 4 питання вище згенерують підказку: яка з трьох БД тобі найкраще пасує.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. CODE ============ -->
+<section id="code">
+  <h2><span class="badge">6</span>Однакова задача — 3 різні БД</h2>
+
+  <p>
+    Задача: проіндексувати 3 документи, знайти найрелевантніший до запиту
+    <code>"What is Python?"</code>.
+  </p>
+
+  <div class="code-tabs">
+    <div class="tab-buttons">
+      <button class="tab-btn active" onclick="showTab(event, 'qdrant')">Qdrant</button>
+      <button class="tab-btn" onclick="showTab(event, 'faiss')">FAISS</button>
+      <button class="tab-btn" onclick="showTab(event, 'pinecone')">Pinecone</button>
+      <button class="tab-btn" onclick="showTab(event, 'chroma')">Chroma</button>
+    </div>
+
+    <div class="tab-content active" id="tab-qdrant">
+<pre><code># pip install qdrant-client openai
+# docker run -p 6333:6333 qdrant/qdrant
+
+from qdrant_client import QdrantClient
+from qdrant_client.models import Distance, VectorParams, PointStruct
+from openai import OpenAI
+
+oai = OpenAI()
+client = QdrantClient("localhost", port=6333)
+
+def embed(text):
+    return oai.embeddings.create(
+        input=text, model="text-embedding-3-small"
+    ).data[0].embedding
+
+# 1. Створити колекцію
+client.recreate_collection(
+    collection_name="docs",
+    vectors_config=VectorParams(size=1536, distance=Distance.COSINE),
+)
+
+# 2. Додати документи
+docs = [
+    "Python is a high-level programming language.",
+    "Pandas is a data analysis library for Python.",
+    "PostgreSQL is a relational database.",
+]
+client.upsert(
+    collection_name="docs",
+    points=[
+        PointStruct(id=i, vector=embed(d), payload={"text": d})
+        for i, d in enumerate(docs)
+    ],
+)
+
+# 3. Пошук
+results = client.search(
+    collection_name="docs",
+    query_vector=embed("What is Python?"),
+    limit=2,
+)
+for r in results:
+    print(f"{r.score:.3f}  {r.payload['text']}")</code></pre>
+    </div>
+
+    <div class="tab-content" id="tab-faiss">
+<pre><code># pip install faiss-cpu openai numpy
+
+import faiss
+import numpy as np
+from openai import OpenAI
+
+oai = OpenAI()
+
+def embed(text):
+    return oai.embeddings.create(
+        input=text, model="text-embedding-3-small"
+    ).data[0].embedding
+
+docs = [
+    "Python is a high-level programming language.",
+    "Pandas is a data analysis library for Python.",
+    "PostgreSQL is a relational database.",
+]
+
+# 1. Згенерувати ембедінги
+vectors = np.array([embed(d) for d in docs]).astype("float32")
+faiss.normalize_L2(vectors)  # для cosine = inner product
+
+# 2. Створити індекс
+index = faiss.IndexFlatIP(1536)  # Inner Product (= cosine на нормованих)
+index.add(vectors)
+
+# 3. Пошук
+query = np.array([embed("What is Python?")]).astype("float32")
+faiss.normalize_L2(query)
+scores, ids = index.search(query, k=2)
+
+for score, idx in zip(scores[0], ids[0]):
+    print(f"{score:.3f}  {docs[idx]}")
+
+# Persistence — сам:
+faiss.write_index(index, "docs.index")
+# index = faiss.read_index("docs.index")</code></pre>
+    </div>
+
+    <div class="tab-content" id="tab-pinecone">
+<pre><code># pip install pinecone openai
+# Створи index у https://app.pinecone.io з dimension=1536, metric=cosine
+
+from pinecone import Pinecone
+from openai import OpenAI
+import os
+
+oai = OpenAI()
+pc = Pinecone(api_key=os.environ["PINECONE_API_KEY"])
+index = pc.Index("docs")  # створено в UI заздалегідь
+
+def embed(text):
+    return oai.embeddings.create(
+        input=text, model="text-embedding-3-small"
+    ).data[0].embedding
+
+docs = [
+    "Python is a high-level programming language.",
+    "Pandas is a data analysis library for Python.",
+    "PostgreSQL is a relational database.",
+]
+
+# 1. Upsert (одночасно create+update)
+index.upsert(vectors=[
+    {"id": str(i), "values": embed(d), "metadata": {"text": d}}
+    for i, d in enumerate(docs)
+])
+
+# 2. Пошук
+results = index.query(
+    vector=embed("What is Python?"),
+    top_k=2,
+    include_metadata=True,
+)
+for match in results["matches"]:
+    print(f"{match['score']:.3f}  {match['metadata']['text']}")</code></pre>
+    </div>
+
+    <div class="tab-content" id="tab-chroma">
+<pre><code># pip install chromadb openai
+# Жодного сервера не треба — embedded mode за замовчуванням
+
+import chromadb
+from openai import OpenAI
+
+oai = OpenAI()
+
+def embed(text):
+    return oai.embeddings.create(
+        input=text, model="text-embedding-3-small"
+    ).data[0].embedding
+
+# 1. Створити клієнт (persistent — на диск)
+client = chromadb.PersistentClient(path="./chroma_db")
+
+# 2. Створити / відкрити колекцію
+collection = client.get_or_create_collection(
+    name="docs",
+    metadata={"hnsw:space": "cosine"},  # cosine / l2 / ip
+)
+
+# 3. Додати документи (Chroma сама зберігає текст у metadata)
+docs = [
+    "Python is a high-level programming language.",
+    "Pandas is a data analysis library for Python.",
+    "PostgreSQL is a relational database.",
+]
+collection.add(
+    ids=[f"doc_{i}" for i in range(len(docs))],
+    documents=docs,
+    embeddings=[embed(d) for d in docs],
+)
+
+# 4. Пошук
+results = collection.query(
+    query_embeddings=[embed("What is Python?")],
+    n_results=2,
+)
+for doc, dist in zip(results["documents"][0], results["distances"][0]):
+    print(f"{1 - dist:.3f}  {doc}")  # cosine distance → similarity
+
+# Бонус: фільтрація за метаданими
+# results = collection.query(
+#     query_embeddings=[embed("...")],
+#     n_results=5,
+#     where={"category": "tech"},  # точне співпадіння
+# )</code></pre>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Що бачимо:</strong> API майже ідентичні. Вся різниця — в тому, ХТО керує сховищем.
+    Qdrant — ти запускаєш Docker. FAISS — ти зберігаєш файли. Pinecone — індекс уже стоїть у хмарі.
+  </div>
+</section>
+
+<!-- ============ 7. COST ============ -->
+<section id="cost">
+  <h2><span class="badge">7</span>Вартість на різних масштабах</h2>
+
+  <p>
+    Ось приблизні ціни на квітень 2026 для типового RAG-застосунку
+    (1536d ембедінги, ~10 запитів/сек):
+  </p>
+
+  <table>
+    <tr>
+      <th>Масштаб</th>
+      <th>FAISS (self-host)</th>
+      <th>Chroma (self-host)</th>
+      <th>Qdrant Cloud</th>
+      <th>Pinecone Serverless</th>
+    </tr>
+    <tr>
+      <td>10K векторів<br><small>прототип</small></td>
+      <td>$0 (локально)</td>
+      <td>$0 (embedded)</td>
+      <td>$0 (free tier)</td>
+      <td>$0 (free tier)</td>
+    </tr>
+    <tr>
+      <td>100K векторів<br><small>малий продукт</small></td>
+      <td>~$25/міс (t3.medium)</td>
+      <td>~$25/міс</td>
+      <td>~$25/міс</td>
+      <td>~$30/міс</td>
+    </tr>
+    <tr>
+      <td>1M векторів<br><small>SaaS</small></td>
+      <td>~$80/міс (t3.large)</td>
+      <td>~$80/міс</td>
+      <td>~$120/міс</td>
+      <td>~$150/міс</td>
+    </tr>
+    <tr>
+      <td>10M векторів<br><small>scale</small></td>
+      <td>~$300/міс (r6i.xlarge)</td>
+      <td>⚠️ не рекомендовано</td>
+      <td>~$600/міс</td>
+      <td>~$1,200/міс</td>
+    </tr>
+    <tr>
+      <td>100M векторів<br><small>enterprise</small></td>
+      <td>~$2,500/міс + DevOps</td>
+      <td>❌ не підходить</td>
+      <td>~$4,000/міс</td>
+      <td>~$10,000+/міс</td>
+    </tr>
+  </table>
+
+  <div class="numbers">
+    <div class="num-card">
+      <div class="big">$0.02</div>
+      <div class="lbl">embed 1M токенів (text-emb-3-small)</div>
+    </div>
+    <div class="num-card">
+      <div class="big">~$20</div>
+      <div class="lbl">проіндексувати книжку (1M токенів)</div>
+    </div>
+    <div class="num-card">
+      <div class="big">×4</div>
+      <div class="lbl">різниця Pinecone vs self-host на 10M</div>
+    </div>
+    <div class="num-card">
+      <div class="big">~10ms</div>
+      <div class="lbl">latency Qdrant на 1M HNSW</div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <strong>Економіка:</strong> до 100K векторів різниця цін мізерна — бери, що
+    зручніше. На 10M+ Pinecone стає у 4× дорожче за self-host. На 100M+ — переходь
+    на Qdrant cluster або кастомне рішення (Vespa, Weaviate).
+  </div>
+</section>
+
+<!-- ============ 8. CLOUDS ============ -->
+<section id="clouds">
+  <h2><span class="badge">8</span>Vector DB у великих хмарах: AWS / GCP / Azure</h2>
+
+  <p>
+    Якщо твоя інфраструктура вже на одній з трьох великих хмар — швидше за все
+    тобі <strong>не потрібен Pinecone</strong>. У кожної є native-сервіс для vector search,
+    який інтегрований з IAM, VPC, моніторингом і білінгом тієї ж хмари.
+  </p>
+
+  <div class="cloud-grid">
+
+    <!-- AWS -->
+    <div class="cloud-card aws">
+      <div class="cloud-name">☁️ AWS</div>
+      <div class="service">OpenSearch Service (k-NN)</div>
+      <div class="pitch">
+        Managed Elasticsearch-форк з vector engine. Підтримує HNSW, IVF, обмежено flat.
+        + Aurora pgvector як альтернатива.
+      </div>
+
+      <h4 class="pros">✅ Плюси</h4>
+      <ul style="font-size: 0.85rem;" class="pros">
+        <li>Hybrid search з коробки (BM25 + vector)</li>
+        <li>Інтеграція з Bedrock embeddings</li>
+        <li>Не треба окремий vendor — один білінг</li>
+      </ul>
+
+      <h4 class="cons">❌ Мінуси</h4>
+      <ul style="font-size: 0.85rem;" class="cons">
+        <li>Дорожче за чистий Qdrant на тих самих обсягах</li>
+        <li>Java-стек — повільніший cold start</li>
+        <li>HNSW параметри менш гнучкі</li>
+      </ul>
+
+      <div class="pricing">
+        ~$140/міс<br>
+        <small style="color:#94a3b8;">m6g.large + 100GB EBS, ~1M векторів</small>
+      </div>
+    </div>
+
+    <!-- GCP -->
+    <div class="cloud-card gcp">
+      <div class="cloud-name">☁️ GCP</div>
+      <div class="service">Vertex AI Vector Search</div>
+      <div class="pitch">
+        Колишній Matching Engine. Базований на ScaNN — внутрішня бібліотека Google,
+        що рухає YouTube/Search. Найшвидший на дуже великих обсягах.
+      </div>
+
+      <h4 class="pros">✅ Плюси</h4>
+      <ul style="font-size: 0.85rem;" class="pros">
+        <li>ScaNN — швидший за HNSW на &gt;100M векторів</li>
+        <li>Streaming updates без rebuild</li>
+        <li>Інтеграція з Vertex AI embeddings</li>
+      </ul>
+
+      <h4 class="cons">❌ Мінуси</h4>
+      <ul style="font-size: 0.85rem;" class="cons">
+        <li>Складніший setup (treat як ML-pipeline)</li>
+        <li>Дорого на маленьких обсягах</li>
+        <li>Слабша фільтрація за метаданими</li>
+      </ul>
+
+      <div class="pricing">
+        ~$200/міс<br>
+        <small style="color:#94a3b8;">e2-standard-2 endpoint, ~1M векторів</small>
+      </div>
+    </div>
+
+    <!-- Azure -->
+    <div class="cloud-card azure">
+      <div class="cloud-name">☁️ Azure</div>
+      <div class="service">AI Search (vector)</div>
+      <div class="pitch">
+        Колишній Cognitive Search + vector. Найбільш «продуктовий» з трьох —
+        single-API для keyword + semantic + vector + hybrid + reranking.
+      </div>
+
+      <h4 class="pros">✅ Плюси</h4>
+      <ul style="font-size: 0.85rem;" class="pros">
+        <li>Best-in-class hybrid search (BM25 + vec + RRF + semantic ranker)</li>
+        <li>Інтеграція з Azure OpenAI Service</li>
+        <li>Vector compression / scalar quantization</li>
+      </ul>
+
+      <h4 class="cons">❌ Мінуси</h4>
+      <ul style="font-size: 0.85rem;" class="cons">
+        <li>Lock-in в Azure-стек</li>
+        <li>Менш зрозумілі ціни (за tier, не за вектори)</li>
+        <li>Документація громіздка</li>
+      </ul>
+
+      <div class="pricing">
+        ~$245/міс<br>
+        <small style="color:#94a3b8;">Standard S1, 50GB, ~1M векторів</small>
+      </div>
+    </div>
+
+  </div>
+
+  <h3>Порівняння native cloud vector services</h3>
+  <table>
+    <tr>
+      <th>Критерій</th>
+      <th>AWS OpenSearch</th>
+      <th>GCP Vertex AI</th>
+      <th>Azure AI Search</th>
+    </tr>
+    <tr>
+      <td>Алгоритм</td>
+      <td>HNSW, IVF (Lucene/nmslib)</td>
+      <td>ScaNN (Google research)</td>
+      <td>HNSW (exhaustive optional)</td>
+    </tr>
+    <tr>
+      <td>Max dimension</td>
+      <td>16,000</td>
+      <td>2,048 (default), вище за запитом</td>
+      <td>3,072</td>
+    </tr>
+    <tr>
+      <td>Hybrid search</td>
+      <td><span class="yes">✓ нативний</span></td>
+      <td><span class="partial">~ окремо</span></td>
+      <td><span class="yes">✓ топовий</span></td>
+    </tr>
+    <tr>
+      <td>Filterable metadata</td>
+      <td><span class="yes">✓ потужні Lucene-queries</span></td>
+      <td><span class="partial">~ обмежено</span></td>
+      <td><span class="yes">✓ OData filters</span></td>
+    </tr>
+    <tr>
+      <td>Update без rebuild</td>
+      <td><span class="yes">✓</span></td>
+      <td><span class="yes">✓ streaming</span></td>
+      <td><span class="yes">✓</span></td>
+    </tr>
+    <tr>
+      <td>Auto-scaling</td>
+      <td><span class="partial">~ ручне</span></td>
+      <td><span class="yes">✓ replicas</span></td>
+      <td><span class="partial">~ replica/partition tier</span></td>
+    </tr>
+    <tr>
+      <td>Quantization</td>
+      <td>Scalar, BinaryQuantization (2025+)</td>
+      <td>Product Quantization</td>
+      <td>Scalar, Binary</td>
+    </tr>
+    <tr>
+      <td>Embeddings вбудовані</td>
+      <td>Bedrock (Titan, Cohere)</td>
+      <td>Vertex AI text-embedding</td>
+      <td>Azure OpenAI (ada/3-large)</td>
+    </tr>
+    <tr>
+      <td>Free tier для dev</td>
+      <td><span class="no">✗</span> (тільки trial credit)</td>
+      <td><span class="no">✗</span></td>
+      <td><span class="yes">✓</span> Free tier 50MB</td>
+    </tr>
+  </table>
+
+  <h3>Альтернатива: pgvector через managed Postgres</h3>
+
+  <div class="pg-callout">
+    <div class="pg-title">🐘 Якщо в тебе вже є Postgres у хмарі — спробуй pgvector ПЕРШИМ</div>
+    <p style="font-size: 0.9rem; margin: 0;">
+      Postgres-extension <code>pgvector</code> підтримує HNSW (з v0.5+) і IVFFlat,
+      доступний у всіх трьох хмарах як managed-сервіс. До ~1M векторів — повноцінна
+      альтернатива окремій vector DB. Бонус: вектори і transactional data в одній БД,
+      JOIN'и працюють.
+    </p>
+  </div>
+
+  <table>
+    <tr>
+      <th>Хмара</th>
+      <th>Сервіс</th>
+      <th>Команда</th>
+      <th>Стартова ціна</th>
+    </tr>
+    <tr>
+      <td>AWS</td>
+      <td>RDS / Aurora PostgreSQL 15+</td>
+      <td><code>CREATE EXTENSION vector;</code></td>
+      <td>~$15/міс (db.t4g.micro)</td>
+    </tr>
+    <tr>
+      <td>GCP</td>
+      <td>Cloud SQL for PostgreSQL 15+</td>
+      <td><code>CREATE EXTENSION vector;</code></td>
+      <td>~$10/міс (db-f1-micro)</td>
+    </tr>
+    <tr>
+      <td>Azure</td>
+      <td>Database for PostgreSQL Flexible</td>
+      <td><code>CREATE EXTENSION vector;</code></td>
+      <td>~$13/міс (B1ms)</td>
+    </tr>
+  </table>
+
+  <h3>Швидкий приклад: pgvector + HNSW</h3>
+  <pre><code>-- 1. Включити extension
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- 2. Створити таблицю з vector-колонкою
+CREATE TABLE docs (
+    id BIGSERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    metadata JSONB,
+    embedding vector(1536) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. HNSW індекс (доступний з pgvector 0.5+)
+CREATE INDEX ON docs USING hnsw (embedding vector_cosine_ops)
+WITH (m = 16, ef_construction = 64);
+
+-- 4. Insert з Python
+-- INSERT INTO docs (content, embedding) VALUES ('Python is...', '[0.1, 0.2, ...]')
+
+-- 5. Пошук top-5 з фільтром
+SELECT id, content, 1 - (embedding &lt;=&gt; '[0.1, ...]'::vector) AS similarity
+FROM docs
+WHERE metadata-&gt;&gt;'lang' = 'uk'
+ORDER BY embedding &lt;=&gt; '[0.1, ...]'::vector
+LIMIT 5;</code></pre>
+
+  <h3>Як обрати між native cloud і dedicated vector DB</h3>
+  <table>
+    <tr>
+      <th>Якщо…</th>
+      <th>Бери</th>
+    </tr>
+    <tr>
+      <td>Вже на AWS/GCP/Azure, до 1M векторів, є Postgres</td>
+      <td><strong>pgvector</strong> на managed Postgres твоєї хмари</td>
+    </tr>
+    <tr>
+      <td>На AWS, треба hybrid search + великі ES-знання в команді</td>
+      <td><strong>OpenSearch Service</strong></td>
+    </tr>
+    <tr>
+      <td>На GCP, &gt;100M векторів, Google embeddings</td>
+      <td><strong>Vertex AI Vector Search</strong> (ScaNN)</td>
+    </tr>
+    <tr>
+      <td>На Azure + Azure OpenAI, треба best-in-class hybrid</td>
+      <td><strong>Azure AI Search</strong></td>
+    </tr>
+    <tr>
+      <td>Multi-cloud або планується перехід між хмарами</td>
+      <td><strong>Qdrant self-hosted</strong> — однаково на будь-якій хмарі</td>
+    </tr>
+    <tr>
+      <td>Не хочеш ніякого ops, навіть managed Postgres</td>
+      <td><strong>Pinecone</strong> або <strong>Qdrant Cloud</strong></td>
+    </tr>
+  </table>
+
+  <div class="warning">
+    <strong>Lock-in попередження:</strong> native cloud-сервіси прив'язують тебе до
+    конкретної хмари. ScaNN-індекси з GCP не переносяться у AWS, OData filters Azure
+    не працюють у OpenSearch. Якщо є шанс міграції — Qdrant дає portable-стек з
+    однаковим API на будь-якій інфраструктурі.
+  </div>
+</section>
+
+<!-- ============ SUMMARY ============ -->
+<section>
+  <h2>📌 Підсумок: 9 правил для vector DB</h2>
+  <ol style="font-size: 1rem; line-height: 1.8;">
+    <li><strong>До 100K векторів</strong> — тобі не треба vector DB. Numpy + cosine OK.</li>
+    <li><strong>Прототип / навчання:</strong> Chroma — embedded, одна стрічка <code>pip install</code>.</li>
+    <li><strong>Прототип з планом продакшну:</strong> Qdrant в Docker (30 сек, 0$).</li>
+    <li><strong>MVP / startup:</strong> Pinecone serverless або Qdrant Cloud — без DevOps.</li>
+    <li><strong>Уже на AWS/GCP/Azure:</strong> подивись native (OpenSearch / Vertex AI / AI Search) або pgvector ПЕРЕД тим як платити Pinecone.</li>
+    <li><strong>10M+ і свій DevOps:</strong> Qdrant self-hosted з шардингом — найкращий cost/performance.</li>
+    <li><strong>FAISS</strong> — коли треба максимум швидкості (GPU) і ти не хочеш повноцінну БД.</li>
+    <li><strong>Версіонуй колекції</strong> по моделі ембедінгу — інакше міграція = біль.</li>
+    <li><strong>Hybrid search</strong> (dense + sparse) перемагає чистий vector майже завжди в продакшні.</li>
+  </ol>
+</section>
+
+<footer>
+  AI Engineering Course · Lesson 8 · Vector Databases у продакшні
+</footer>
+
+</div>
+
+<script>
+// ============ DEMO 3: Vector Search ============
+const DOCS = [
+  { text: "Python — інтерпретована мова програмування.", topics: ["python", "programming", "language"] },
+  { text: "Pandas — бібліотека для аналізу даних на Python.", topics: ["python", "data", "library"] },
+  { text: "Cython дозволяє прискорити Python-код через компіляцію в C.", topics: ["python", "performance", "speed", "compile"] },
+  { text: "Профілювання cProfile показує, які функції повільні.", topics: ["python", "performance", "speed", "profile"] },
+  { text: "AWS EC2 — віртуальні машини в хмарі.", topics: ["cloud", "aws", "infra", "cost"] },
+  { text: "Google Cloud Run автоматично масштабує контейнери.", topics: ["cloud", "gcp", "container", "cost"] },
+  { text: "Резервувати інстанси на 1 рік дає знижку до 60%.", topics: ["cloud", "cost", "billing", "saving"] },
+  { text: "PyTorch — фреймворк для тренування нейронних мереж.", topics: ["ml", "neural", "training", "pytorch"] },
+  { text: "Backpropagation — алгоритм навчання нейромереж через градієнти.", topics: ["ml", "neural", "training", "algorithm"] },
+  { text: "TypeError виникає при операції з несумісними типами.", topics: ["bug", "error", "debug", "python"] },
+  { text: "NullPointerException — найчастіший баг у Java-додатках.", topics: ["bug", "error", "debug", "java"] },
+  { text: "Карбонара — паста з беконом, яйцем і пармезаном.", topics: ["recipe", "cooking", "pasta", "italian"] },
+];
+
+const QUERY_TOPICS = {
+  "python": { keywords: ["python", "пайтон", "пітон"], topics: ["python", "programming"] },
+  "speed": { keywords: ["прискорити", "швидкість", "оптимізац", "повільн", "perform"], topics: ["performance", "speed"] },
+  "cloud": { keywords: ["хмар", "cloud", "aws", "gcp", "інфра"], topics: ["cloud", "infra"] },
+  "cost": { keywords: ["кошти", "ціна", "вартість", "білінг", "знижк", "економ"], topics: ["cost", "saving"] },
+  "ml": { keywords: ["нейромереж", "neural", "навчан", "тренув", "ml", "машинн"], topics: ["ml", "neural", "training"] },
+  "bug": { keywords: ["баг", "помилк", "error", "bug", "застосун", "дебаг", "виник"], topics: ["bug", "error", "debug"] },
+  "cook": { keywords: ["рецепт", "кулін", "паст", "їжа", "готуван"], topics: ["recipe", "cooking"] },
+};
+
+function setQuery(q) {
+  document.getElementById('queryInput').value = q;
+  runSearch();
+}
+
+function runSearch() {
+  const q = document.getElementById('queryInput').value.toLowerCase().trim();
+  if (!q) return;
+
+  // Determine query topics
+  const matchedTopics = new Set();
+  for (const cat of Object.values(QUERY_TOPICS)) {
+    for (const kw of cat.keywords) {
+      if (q.includes(kw)) {
+        cat.topics.forEach(t => matchedTopics.add(t));
+        break;
+      }
+    }
+  }
+
+  // Score each doc
+  const scored = DOCS.map((doc, idx) => {
+    let score = 0;
+    for (const t of doc.topics) {
+      if (matchedTopics.has(t)) score += 1;
+    }
+    // Add small jitter so identical scores have stable order
+    score += idx * 0.001;
+    // Normalize to 0-1
+    score = Math.min(0.99, score / 3 + Math.random() * 0.05);
+    return { ...doc, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+
+  const container = document.getElementById('searchResults');
+  container.innerHTML = '';
+  const top5 = scored.slice(0, 5);
+
+  if (matchedTopics.size === 0) {
+    container.innerHTML = '<p style="color: #94a3b8; font-style: italic;">Не знайшов чіткої тематики у запиті. Спробуй один з прикладів вище.</p>';
+    return;
+  }
+
+  top5.forEach((doc, i) => {
+    const item = document.createElement('div');
+    item.className = 'result-item' + (i === 0 ? ' top' : '');
+    item.innerHTML = `
+      <div class="rank">#${i + 1}</div>
+      <div class="text">${doc.text}</div>
+      <div class="score">
+        ${doc.score.toFixed(3)}
+        <div class="score-bar"><div class="score-bar-fill" style="width: ${doc.score * 100}%"></div></div>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+// ============ DEMO 5: Decision Tree ============
+const answers = {};
+const RECOMMENDATIONS = {
+  // (size, ops, budget, filter) -> recommendation
+};
+
+function genRecommendation() {
+  const { size, ops, budget, filter } = answers;
+  if (!size || !ops || !budget || !filter) return null;
+
+  // Decision logic
+  if (size === 'small' && budget === 'zero') {
+    return {
+      title: '🍊 Chroma (embedded) — найшвидший старт',
+      body: '<code>pip install chromadb</code> → одна стрічка коду і твоя БД у Python-процесі. ' +
+            'Ідеально для навчання, ноутбуків, прототипів до 100K векторів. ' +
+            'Альтернатива: FAISS, якщо потрібна максимальна швидкість і немає метаданих.'
+    };
+  }
+  if (ops === 'prototype') {
+    return {
+      title: '🍊 Chroma локально → потім Qdrant',
+      body: 'Для прототипу: <code>chromadb.PersistentClient(path="./db")</code> — без сервера, без Docker. ' +
+            'Якщо проєкт «зайде» і дані ростимуть &gt; 1M — мігруй на Qdrant (API різні, але концептуально близькі).'
+    };
+  }
+  if (ops === 'no' && budget !== 'zero') {
+    if (size === 'large' && budget === 'high') {
+      return {
+        title: '☁️ Pinecone Serverless',
+        body: 'Великий датасет + готовий платити + не хочеш ops = Pinecone. Auto-scaling, ' +
+              'заплатиш ~$10K+/міс на 100M, але 0 годин на DevOps. На цих обсягах варто.'
+      };
+    }
+    return {
+      title: '☁️ Qdrant Cloud або Pinecone Serverless',
+      body: 'Managed-сервіс — ок вибір. Qdrant Cloud дешевший на середніх обсягах, Pinecone — простіший ' +
+            'для початку. Пробуй Qdrant Cloud free tier 1 GB — побачиш чи влаштовує.'
+    };
+  }
+  if (ops === 'yes' && size === 'large') {
+    return {
+      title: '🐳 Qdrant self-hosted з шардингом',
+      body: 'У тебе є DevOps + великий датасет = Qdrant cluster. Економія до 4× проти Pinecone, ' +
+            'повний контроль. Розгортай через Helm chart на k8s, snapshot на S3.'
+    };
+  }
+  if (filter === 'yes') {
+    return {
+      title: '🎯 Qdrant (self-hosted або Cloud)',
+      body: 'Складна фільтрація — сильна сторона Qdrant. Payload-індекси, geo-фільтри, range queries. ' +
+            'Pinecone теж вміє, але обмеженіше. Chroma — простіша фільтрація, FAISS — відразу відпадає.'
+    };
+  }
+
+  // Default fallback
+  return {
+    title: '🐳 Qdrant — універсальний вибір',
+    body: 'Для більшості випадків Qdrant — золота середина: open-source, простий локальний старт, ' +
+          'managed для продакшну, потужні фільтри. Chroma — якщо хочеш ще швидший прототип. ' +
+          'Pinecone — якщо абсолютно не хочеш ops. FAISS — якщо потрібна максимальна швидкість.'
+  };
+}
+
+document.querySelectorAll('.decision-buttons').forEach(group => {
+  const q = group.dataset.q;
+  group.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      answers[q] = btn.dataset.val;
+      const rec = genRecommendation();
+      const recDiv = document.getElementById('recommendation');
+      if (rec) {
+        recDiv.innerHTML = `<div class="rec-title">${rec.title}</div><p style="margin: 0; font-size: 0.95rem; color: #e2e8f0;">${rec.body}</p>`;
+      }
+    });
+  });
+});
+
+// ============ HERO FLOW ANIMATION ============
+const HERO_STEPS = [
+  // Build path first
+  { target: 'box-docs',        arrow: null,      packet: 'packet-build', from: null,             to: { x: 75, y: 210 },  label: '① Завантажуємо документи (PDF, web, Notion...)' },
+  { target: 'box-docs',        arrow: 'arr-b1',  packet: 'packet-build', from: { x: 75, y: 210 }, to: { x: 245, y: 210 }, label: '② Розбиваємо на чанки по ~500 токенів' },
+  { target: 'box-chunk',       arrow: 'arr-b2',  packet: 'packet-build', from: { x: 245, y: 210 }, to: { x: 445, y: 210 }, label: '③ Embedding-модель перетворює текст на вектори' },
+  { target: 'box-embed-batch', arrow: 'arr-b3',  packet: 'packet-build', from: { x: 445, y: 210 }, to: { x: 660, y: 210 }, label: '④ Vector DB будує HNSW-індекс і зберігає payload (текст!)' },
+  { target: 'box-index',       arrow: 'arr-feed',packet: null,                                                            label: '✓ Індекс готовий — vector DB чекає на запити' },
+
+  // Live query path
+  { target: 'box-user',        arrow: null,      packet: 'packet',       from: null,             to: { x: 75, y: 75 },   label: '① Користувач питає: «як прискорити Python код?»' },
+  { target: 'box-user',        arrow: 'arr-1',   packet: 'packet',       from: { x: 75, y: 75 }, to: { x: 245, y: 75 },  label: '② Запит передається в embedding-модель' },
+  { target: 'box-embed',       arrow: 'arr-2',   packet: 'packet',       from: { x: 245, y: 75 }, to: { x: 445, y: 75 }, label: '③ Шукаємо top-K найближчих векторів у БД (HNSW)' },
+  { target: 'box-search',      arrow: 'arr-3',   packet: 'packet',       from: { x: 445, y: 75 }, to: { x: 660, y: 75 }, label: '④ Retriever віддає 3 тексти + питання → у промпт LLM (див. callout зверху)' },
+  { target: 'box-llm',         arrow: 'arr-4',   packet: 'packet',       from: { x: 660, y: 75 }, to: { x: 840, y: 75 }, label: '⑤ LLM генерує відповідь на основі знайденого контексту' },
+  { target: 'box-answer',      arrow: 'arr-return',packet: 'packet',     from: { x: 840, y: 75 },to: { x: 75, y: 75 },   label: '⑥ Готова відповідь повертається назад користувачу (із цитатами на джерела)' },
+
+  // Deep-dive: how retriever extracts text
+  { target: 'box-dd-query',    arrow: null,      packet: 'packet-dd',    from: null,             to: { x: 100, y: 350 }, label: '🔬 ZOOM IN: query-вектор приходить у Vector DB' },
+  { target: 'box-dd-query',    arrow: 'arr-dd-1',packet: 'packet-dd',    from: { x: 100, y: 350 },to: { x: 385, y: 350 }, label: '🔬 БД має 3 поля на рядок: id, embedding, payload (з оригінальним текстом)' },
+  { target: 'box-dd-internals',arrow: null,      packet: null,                                                            label: '🔬 HNSW шукає top-K за similarity. Embedding ≠ текст — їх не декодувати назад!' },
+  { target: 'dd-match-row',    arrow: null,      packet: null,                                                            label: '🔬 Знайдено: id=17, score=0.91. Текст беремо з payload, не з вектора' },
+  { target: 'box-dd-internals',arrow: 'arr-dd-2',packet: 'packet-dd',    from: { x: 385, y: 350 },to: { x: 737, y: 350 }, label: '🔬 Retriever повертає JSON з {id, score, text} — текст узяв з payload' },
+  { target: 'box-dd-out',      arrow: null,      packet: null,                                                            label: '✓ Retriever готовий — у нього 3 текстові chunks з джерела' },
+
+  // Row 4: how retriever passes to LLM
+  { target: 'box-rag-chunks',  arrow: null,      packet: 'packet-rag',   from: null,             to: { x: 110, y: 605 }, label: '🤖 Беремо top-3 чанки (тексти + scores + ids)' },
+  { target: 'box-rag-chunks',  arrow: 'arr-rag-1',packet: 'packet-rag',  from: { x: 110, y: 605 },to: { x: 440, y: 605 }, label: '🤖 Тексти склеюємо в &lt;context&gt; теги з нумерацією [1] [2] [3]' },
+  { target: 'box-rag-prompt',  arrow: null,      packet: null,                                                            label: '🤖 Структурований messages[]: system + user (context + питання)' },
+  { target: 'box-rag-prompt',  arrow: 'arr-rag-2',packet: 'packet-rag',  from: { x: 440, y: 605 },to: { x: 780, y: 605 }, label: '🤖 Виклик claude.messages.create() з готовим промптом' },
+  { target: 'box-rag-llm',     arrow: null,      packet: null,                                                            label: '✓ LLM генерує відповідь з посиланнями [1][2][3] — це grounded RAG' },
+];
+
+let heroTimer = null;
+let heroIdx = 0;
+
+function resetHeroBoxes() {
+  ['box-user','box-embed','box-search','box-llm','box-answer',
+   'box-docs','box-chunk','box-embed-batch','box-index',
+   'box-dd-query','box-dd-internals','box-dd-out',
+   'box-rag-chunks','box-rag-prompt','box-rag-llm'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('opacity', '0.4');
+  });
+  // dd-match-row is a highlight rect, hide it initially
+  const matchRow = document.getElementById('dd-match-row');
+  if (matchRow) matchRow.setAttribute('opacity', '0');
+
+  ['arr-1','arr-2','arr-3','arr-4','arr-b1','arr-b2','arr-b3','arr-feed',
+   'arr-dd-1','arr-dd-2','arr-rag-1','arr-rag-2','arr-return'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.setAttribute('stroke', '#475569');
+      el.setAttribute('marker-end', 'url(#arrowOff)');
+      const baseOpacity = (id === 'arr-feed' || id === 'arr-return') ? '0.4' : '1';
+      el.setAttribute('opacity', baseOpacity);
+    }
+  });
+  ['packet','packet-build','packet-dd','packet-rag'].forEach(id => {
+    const p = document.getElementById(id);
+    if (p) {
+      p.setAttribute('r', 0);
+      p.setAttribute('opacity', 0);
+    }
+  });
+}
+
+function playStep(i) {
+  const step = HERO_STEPS[i];
+  const label = document.getElementById('hero-step');
+  if (label) label.textContent = step.label;
+
+  // light up target box (or match-row for deep-dive)
+  if (step.target) {
+    const box = document.getElementById(step.target);
+    if (box) {
+      if (step.target === 'dd-match-row') {
+        box.setAttribute('opacity', '1');
+      } else {
+        box.setAttribute('opacity', '1');
+      }
+    }
+  }
+
+  // light up arrow
+  if (step.arrow) {
+    const arr = document.getElementById(step.arrow);
+    if (arr) {
+      arr.setAttribute('stroke', '#a855f7');
+      arr.setAttribute('marker-end', 'url(#arrow)');
+      arr.setAttribute('opacity', '1');
+    }
+  }
+
+  // animate packet
+  if (step.packet && step.from && step.to) {
+    const p = document.getElementById(step.packet);
+    if (p) {
+      p.setAttribute('cx', step.from.x);
+      p.setAttribute('cy', step.from.y);
+      p.setAttribute('r', 7);
+      p.setAttribute('opacity', 1);
+      p.style.transition = 'all 0.7s ease-in-out';
+      setTimeout(() => {
+        p.setAttribute('cx', step.to.x);
+        p.setAttribute('cy', step.to.y);
+      }, 50);
+    }
+  } else if (step.packet && step.to && !step.from) {
+    const p = document.getElementById(step.packet);
+    if (p) {
+      p.style.transition = 'opacity 0.3s';
+      p.setAttribute('cx', step.to.x);
+      p.setAttribute('cy', step.to.y);
+      p.setAttribute('r', 7);
+      p.setAttribute('opacity', 1);
+    }
+  } else if (!step.packet) {
+    const p1 = document.getElementById('packet');
+    const p2 = document.getElementById('packet-build');
+    if (p1) p1.setAttribute('opacity', 0);
+    if (p2) p2.setAttribute('opacity', 0);
+  }
+}
+
+function playHero() {
+  resetHero();
+  heroIdx = 0;
+  function tick() {
+    if (heroIdx >= HERO_STEPS.length) {
+      const label = document.getElementById('hero-step');
+      if (label) label.textContent = '✓ Цикл завершено · натисни «Програти» щоб повторити';
+      heroTimer = null;
+      return;
+    }
+    playStep(heroIdx);
+    heroIdx++;
+    heroTimer = setTimeout(tick, 1400);
+  }
+  tick();
+}
+
+function resetHero() {
+  if (heroTimer) { clearTimeout(heroTimer); heroTimer = null; }
+  heroIdx = 0;
+  resetHeroBoxes();
+  const label = document.getElementById('hero-step');
+  if (label) label.textContent = 'Натисни «Програти»';
+}
+
+// auto-play once on load
+window.addEventListener('load', () => setTimeout(playHero, 600));
+
+// ============ INDEX ANIMATIONS ============
+
+// FLAT: scanner moves through every dot
+(function animFlat() {
+  const svg = document.getElementById('anim-flat');
+  if (!svg) return;
+  const dotsLayer = svg.querySelector('#flat-dots');
+  const scanner = svg.querySelector('#flat-scanner');
+  const positions = [];
+  // 6 cols × 4 rows
+  const cols = 8, rows = 4;
+  const startX = 20, startY = 50, dx = 32, dy = 22;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const x = startX + c * dx;
+      const y = startY + r * dy;
+      positions.push({ x, y });
+      const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      dot.setAttribute('cx', x);
+      dot.setAttribute('cy', y);
+      dot.setAttribute('r', 4);
+      dot.setAttribute('class', 'vec-dot');
+      dotsLayer.appendChild(dot);
+    }
+  }
+  // mark target
+  const targetIdx = 22;
+  const dots = dotsLayer.querySelectorAll('circle');
+  dots[targetIdx].setAttribute('class', 'vec-dot target');
+
+  let i = 0;
+  function step() {
+    // reset previously scanned
+    dots.forEach((d, idx) => {
+      if (idx === targetIdx) return;
+      d.setAttribute('class', i > idx ? 'vec-dot scanned' : 'vec-dot');
+    });
+    if (i >= positions.length) {
+      // done — flash and reset
+      dots[targetIdx].setAttribute('class', 'vec-dot found');
+      setTimeout(() => {
+        i = 0;
+        dots.forEach((d, idx) => {
+          if (idx === targetIdx) d.setAttribute('class', 'vec-dot target');
+          else d.setAttribute('class', 'vec-dot');
+        });
+        scanner.setAttribute('cx', positions[0].x);
+        scanner.setAttribute('cy', positions[0].y);
+        setTimeout(step, 600);
+      }, 1500);
+      return;
+    }
+    scanner.setAttribute('cx', positions[i].x);
+    scanner.setAttribute('cy', positions[i].y);
+    i++;
+    setTimeout(step, 90);
+  }
+  setTimeout(step, 400);
+})();
+
+// IVF: query lights up nearest cluster, that cluster scans
+(function animIVF() {
+  const svg = document.getElementById('anim-ivf');
+  if (!svg) return;
+  const dotsLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  dotsLayer.setAttribute('id', 'ivf-dots');
+  svg.querySelector('#ivf-dots').replaceWith(dotsLayer);
+
+  // 4 clusters with vectors
+  const clusters = [
+    { cx: 70, cy: 45, r: 32, dots: [], regionIdx: 0 },
+    { cx: 200, cy: 40, r: 32, dots: [], regionIdx: 1 },
+    { cx: 65, cy: 100, r: 30, dots: [], regionIdx: 2 },
+    { cx: 200, cy: 105, r: 34, dots: [], regionIdx: 3 },
+  ];
+  clusters.forEach((cl, ci) => {
+    for (let i = 0; i < 8; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.random() * (cl.r - 8);
+      const x = cl.cx + Math.cos(angle) * dist;
+      const y = cl.cy + Math.sin(angle) * dist;
+      const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      dot.setAttribute('cx', x);
+      dot.setAttribute('cy', y);
+      dot.setAttribute('r', 3);
+      dot.setAttribute('class', 'vec-dot');
+      dotsLayer.appendChild(dot);
+      cl.dots.push(dot);
+    }
+  });
+
+  const query = svg.querySelector('#ivf-query');
+  const regions = svg.querySelectorAll('#ivf-regions circle');
+
+  const queryPositions = [
+    { x: 75, y: 50, target: 0 },
+    { x: 195, y: 105, target: 3 },
+    { x: 200, y: 45, target: 1 },
+    { x: 70, y: 95, target: 2 },
+  ];
+  let qi = 0;
+
+  function cycle() {
+    const q = queryPositions[qi % queryPositions.length];
+    qi++;
+    // reset all
+    clusters.forEach(cl => cl.dots.forEach(d => d.setAttribute('class', 'vec-dot skipped')));
+    regions.forEach(r => r.setAttribute('stroke-opacity', '0.25'));
+
+    // animate query move
+    query.setAttribute('cx', 140);
+    query.setAttribute('cy', 70);
+    setTimeout(() => {
+      query.style.transition = 'all 0.7s';
+      query.setAttribute('cx', q.x);
+      query.setAttribute('cy', q.y);
+    }, 100);
+
+    // highlight nearest cluster
+    setTimeout(() => {
+      regions[q.target].setAttribute('stroke-opacity', '0.9');
+      regions[q.target].setAttribute('stroke', '#fbbf24');
+      const targetCluster = clusters[q.target];
+      targetCluster.dots.forEach((d, i) => {
+        setTimeout(() => d.setAttribute('class', 'vec-dot scanned'), i * 80);
+      });
+      // mark one as found
+      setTimeout(() => {
+        targetCluster.dots[2].setAttribute('class', 'vec-dot found');
+      }, targetCluster.dots.length * 80 + 100);
+    }, 900);
+
+    setTimeout(() => {
+      regions.forEach(r => r.setAttribute('stroke', 'rgba(99,102,241,0.25)'));
+      cycle();
+    }, 3500);
+  }
+  setTimeout(cycle, 500);
+})();
+
+// HNSW: marker traverses layers
+(function animHNSW() {
+  const svg = document.getElementById('anim-hnsw');
+  if (!svg) return;
+  const marker = svg.querySelector('#hnsw-marker');
+  // path: L2-start → L2-mid → L1-mid → L1-right → L0-target
+  const path = [
+    { x: 40, y: 20 },
+    { x: 140, y: 20 },
+    { x: 140, y: 65 },
+    { x: 190, y: 65 },
+    { x: 170, y: 115 },
+  ];
+  let i = 0;
+  function step() {
+    const p = path[i % path.length];
+    marker.style.transition = 'all 0.6s ease-in-out';
+    marker.setAttribute('cx', p.x);
+    marker.setAttribute('cy', p.y);
+    i++;
+    if (i % path.length === 0) {
+      // pause at target then reset
+      setTimeout(() => {
+        marker.style.transition = 'none';
+        marker.setAttribute('cx', path[0].x);
+        marker.setAttribute('cy', path[0].y);
+        setTimeout(step, 600);
+      }, 1200);
+    } else {
+      setTimeout(step, 800);
+    }
+  }
+  setTimeout(step, 400);
+})();
+
+// PQ: original blocks compress into small ones
+(function animPQ() {
+  const svg = document.getElementById('anim-pq');
+  if (!svg) return;
+  const original = svg.querySelectorAll('#pq-original rect');
+  const compressed = svg.querySelectorAll('#pq-compressed rect');
+
+  function cycle() {
+    // Stage 1: only original visible
+    original.forEach(r => { r.style.transition = 'all 0.4s'; r.style.opacity = '1'; });
+    compressed.forEach(r => { r.style.transition = 'none'; r.style.opacity = '0'; });
+
+    setTimeout(() => {
+      // Stage 2: pair up — show grouping
+      original.forEach((r, i) => {
+        const pair = Math.floor(i / 2);
+        r.style.transition = 'all 0.5s';
+        r.setAttribute('stroke', '#fbbf24');
+        r.setAttribute('stroke-width', pair % 2 === 0 ? '1.5' : '1.5');
+      });
+    }, 800);
+
+    setTimeout(() => {
+      // Stage 3: fade originals, show compressed
+      original.forEach(r => { r.style.opacity = '0.25'; r.removeAttribute('stroke'); });
+      compressed.forEach((r, i) => {
+        setTimeout(() => {
+          r.style.transition = 'all 0.4s';
+          r.style.opacity = '1';
+        }, i * 100);
+      });
+    }, 1700);
+
+    setTimeout(cycle, 4000);
+  }
+  setTimeout(cycle, 500);
+})();
+
+// ============ DEMO 6: Code Tabs ============
+function showTab(event, name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+</script>
+</body>
+</html>
