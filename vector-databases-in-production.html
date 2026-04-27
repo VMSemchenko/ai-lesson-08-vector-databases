@@ -1915,39 +1915,38 @@ print(search("як прискорити Python"))</code></pre>
     </div>
   </div>
 
-  <h4>Ключові параметри HNSW (Qdrant / pgvector / FAISS)</h4>
+  <h4>3 ключові параметри HNSW (Qdrant / pgvector / FAISS)</h4>
   <table>
     <tr>
       <th>Параметр</th>
-      <th>Що означає</th>
+      <th>Що це</th>
       <th>Дефолт</th>
-      <th>Trade-off</th>
+      <th>Що змінюється коли підняти</th>
     </tr>
     <tr>
       <td><code>M</code></td>
-      <td>Макс. сусідів на вузол на L1+ (на L0 = 2×M)</td>
+      <td>Скільки сусідів у кожного вузла графа</td>
       <td>16</td>
-      <td>↑ → точніше + більше RAM (~30% на крок)</td>
+      <td>Точніше, але більше RAM</td>
     </tr>
     <tr>
       <td><code>ef_construction</code></td>
-      <td>Розмір кандидатної черги при insert</td>
-      <td>64-128</td>
-      <td>↑ → кращий граф, повільніший build</td>
+      <td>Як ретельно будувати граф (один раз при index)</td>
+      <td>64–128</td>
+      <td>Кращий граф, але повільніший build</td>
     </tr>
     <tr>
-      <td><code>ef_search</code> (runtime)</td>
-      <td>Розмір кандидатної черги при query на L0</td>
-      <td>64-256</td>
-      <td>↑ → вище recall, повільніший search</td>
-    </tr>
-    <tr>
-      <td><code>m_L</code> (level multiplier)</td>
-      <td>Параметр експоненції для рівнів</td>
-      <td>1/ln(M)</td>
-      <td>Майже ніколи не міняють</td>
+      <td><code>ef_search</code></td>
+      <td>Як ретельно шукати при query (можна міняти на льоту)</td>
+      <td>64–256</td>
+      <td>Вищий recall, але повільніший пошук</td>
     </tr>
   </table>
+  <p style="font-size: 0.88rem; color: #94a3b8; margin-top: 0.5rem;">
+    💡 На практиці тюнять <strong>тільки <code>ef_search</code></strong> — це єдиний runtime-параметр.
+    Підняв з 64 до 256 → recall +3-5%, latency ×2. <code>M</code> і <code>ef_construction</code>
+    залишають дефолтними у 95% випадків.
+  </p>
 
   <h4>Чому HNSW — дефолт у Qdrant, Pinecone, Milvus, pgvector, ElasticSearch</h4>
   <ul>
@@ -2730,6 +2729,135 @@ print(search("як прискорити Python"))</code></pre>
     </tr>
   </table>
 
+  <h3>AWS-стратегія: vector search прямо в існуючих БД</h3>
+
+  <p>
+    Замість того щоб переносити дані в окрему vector DB, AWS додає
+    <strong>vector search прямо в існуючі сервіси</strong>. Ідея: ти вже зберігаєш дані
+    у DynamoDB / DocumentDB / Aurora / S3 — тепер можеш робити по них семантичний пошук
+    <em>без міграції</em>.
+  </p>
+
+  <div class="cloud-grid" style="grid-template-columns: repeat(2, 1fr);">
+
+    <!-- DynamoDB -->
+    <div class="cloud-card aws">
+      <div class="cloud-name">⚡ Amazon DynamoDB</div>
+      <div class="service">Zero-ETL → OpenSearch</div>
+      <div class="pitch">
+        DynamoDB залишається NoSQL key-value базою. Активуєш Zero-ETL інтеграцію →
+        дані автоматично і майже миттєво реплікуються в OpenSearch для vector search.
+      </div>
+      <h4 class="pros">✅ Коли використати</h4>
+      <ul style="font-size: 0.85rem;" class="pros">
+        <li>Вже є DynamoDB у проді (caталоги товарів, user-data)</li>
+        <li>Не хочеш писати свій ETL-pipeline</li>
+        <li>Треба combo: швидкі key-value запити + semantic search</li>
+      </ul>
+      <div class="pricing">
+        DynamoDB on-demand + OpenSearch Service<br>
+        <small style="color:#94a3b8;">Zero-ETL — без додаткової оплати за реплікацію</small>
+      </div>
+    </div>
+
+    <!-- DocumentDB -->
+    <div class="cloud-card aws">
+      <div class="cloud-name">📄 Amazon DocumentDB</div>
+      <div class="service">Native vector search (MongoDB-сумісна)</div>
+      <div class="pitch">
+        Vector search додано <strong>нативно</strong>. Зберігаєш мільйони векторів
+        прямо у JSON-документах. Підтримує HNSW і IVFFlat для швидкого similarity search.
+      </div>
+      <h4 class="pros">✅ Коли використати</h4>
+      <ul style="font-size: 0.85rem;" class="pros">
+        <li>MongoDB-стек, не хочеш міняти API</li>
+        <li>Документи з рідним JSON + ембеддинг разом</li>
+        <li>Без сторонніх сервісів — все в одному запиті</li>
+      </ul>
+      <div class="pricing">
+        ~$200/міс (db.r6g.large + 100GB)<br>
+        <small style="color:#94a3b8;">vector search без додаткової плати</small>
+      </div>
+    </div>
+
+    <!-- Aurora / RDS pgvector -->
+    <div class="cloud-card aws">
+      <div class="cloud-name">🐘 Aurora / RDS PostgreSQL</div>
+      <div class="service">pgvector extension</div>
+      <div class="pitch">
+        Для прихильників SQL. Тип <code>vector</code> прямо в таблицях.
+        Можна <strong>комбінувати SQL-фільтри</strong> (price, date, user_id)
+        з vector search в одному запиті.
+      </div>
+      <h4 class="pros">✅ Коли використати</h4>
+      <ul style="font-size: 0.85rem;" class="pros">
+        <li>Уже працюєш з RDS / Aurora</li>
+        <li>Треба ACID-транзакції + vector search разом</li>
+        <li>Складні фільтри з JOIN-ами</li>
+      </ul>
+      <div class="pricing">
+        ~$120/міс (db.t4g.medium + 100GB)<br>
+        <small style="color:#94a3b8;">pgvector — безкоштовний extension</small>
+      </div>
+    </div>
+
+    <!-- S3 Vectors -->
+    <div class="cloud-card aws">
+      <div class="cloud-name">🪣 Amazon S3 Vectors <span style="color: #fbbf24; font-size: 0.7rem;">NEW</span></div>
+      <div class="service">Vector storage у S3</div>
+      <div class="pitch">
+        Перетворює S3-бакети на <strong>дешеве сховище для мільярдів векторів</strong>.
+        S3 сам виконує similarity search — не треба тримати все в RAM спеціалізованої БД.
+      </div>
+      <h4 class="pros">✅ Коли використати</h4>
+      <ul style="font-size: 0.85rem;" class="pros">
+        <li>Billion-scale датасети (рідкісні запити)</li>
+        <li>Архівні embeddings — не latency-критичні</li>
+        <li>Cost-sensitive use cases</li>
+      </ul>
+      <div class="pricing" style="background: rgba(34,197,94,0.12);">
+        <strong style="color: #4ade80;">−90% від in-memory БД</strong><br>
+        <small style="color:#94a3b8;">~$0.023/GB/міс storage + per-query</small>
+      </div>
+    </div>
+
+  </div>
+
+  <h4 style="margin-top: 1.5rem;">Як обрати серед AWS-варіантів</h4>
+  <table>
+    <tr>
+      <th>Сценарій</th>
+      <th>Що обрати</th>
+    </tr>
+    <tr>
+      <td>Уже є DynamoDB, треба додати semantic search</td>
+      <td><strong>DynamoDB Zero-ETL → OpenSearch</strong></td>
+    </tr>
+    <tr>
+      <td>MongoDB-стек, JSON-документи</td>
+      <td><strong>DocumentDB</strong> з native vector</td>
+    </tr>
+    <tr>
+      <td>SQL + складні фільтри + до 10M векторів</td>
+      <td><strong>Aurora / RDS pgvector</strong></td>
+    </tr>
+    <tr>
+      <td>Мільярди векторів, latency не критична</td>
+      <td><strong>S3 Vectors</strong> (cost-optimized)</td>
+    </tr>
+    <tr>
+      <td>Чистий vector workload, високі QPS</td>
+      <td><strong>OpenSearch Service</strong> (dedicated)</td>
+    </tr>
+  </table>
+
+  <div class="takeaway">
+    <strong>Філософія AWS:</strong> «не змушуй компанії мігрувати дані заради AI».
+    Vector search додається там, де дані вже лежать. Це усуває біль <em>data movement</em> —
+    не треба писати ETL, синхронізувати дві БД, дублювати storage. Якщо твій стек уже на AWS —
+    починай з extension/intergation існуючої БД, а не з нової vector DB.
+  </div>
+
   <h3>Альтернатива: pgvector через managed Postgres</h3>
 
   <div class="pg-callout">
@@ -3204,9 +3332,269 @@ client.search(
   </div>
 </section>
 
-<!-- ============ 11. EMBEDDING DRIFT ============ -->
+<!-- ============ 11. SEMANTIC CACHING ============ -->
+<section id="semantic-cache">
+  <h2><span class="badge">11</span>Semantic caching — vector DB як кеш для LLM</h2>
+
+  <p>
+    Окремий, дуже корисний use-case vector DB у production: <strong>кешування LLM-відповідей</strong>.
+    Тут vector DB <em>не</em> для RAG-retrieval, а як <strong>замінник Redis</strong> для семантично
+    схожих запитів.
+  </p>
+
+  <h3>Проблема: LLM повільні і дорогі</h3>
+  <ul>
+    <li>GPT-4 latency: ~2-5 секунд на запит</li>
+    <li>Cost: $0.01-0.03 на запит</li>
+    <li>Багато юзерів задають <strong>майже однакові</strong> питання різними словами</li>
+  </ul>
+
+  <p>Класичний key-value кеш (Redis) тут не працює:</p>
+  <pre><code>cache["What is Python?"]            → hit  ✅
+cache["what is python"]              → miss ❌  (lowercase)
+cache["Tell me about Python lang"]   → miss ❌  (інший формулювання)
+cache["Що таке Python"]              → miss ❌  (інша мова)</code></pre>
+
+  <p>
+    Усі 4 запити мають <strong>однакову відповідь</strong>, але класичний кеш бачить їх як різні.
+    Hit rate = 25% замість потенційних 100%.
+  </p>
+
+  <h3>Рішення: семантичний кеш</h3>
+
+  <div class="vector-viz">
+    <svg viewBox="0 0 720 380" xmlns="http://www.w3.org/2000/svg">
+      <!-- USER -->
+      <circle cx="100" cy="80" r="22" fill="#6366f1"/>
+      <text x="100" y="86" fill="#fff" font-size="11" text-anchor="middle" font-weight="bold">USER</text>
+      <text x="100" y="120" fill="#94a3b8" font-size="10" text-anchor="middle">"Tell me about Python"</text>
+
+      <!-- Arrow user → app -->
+      <path d="M 130 80 L 280 80" stroke="#94a3b8" stroke-width="1.5" fill="none" marker-end="url(#arrow1)"/>
+      <text x="200" y="72" fill="#94a3b8" font-size="9" text-anchor="middle">1. query</text>
+
+      <!-- APP -->
+      <rect x="290" y="55" width="120" height="50" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+      <text x="350" y="78" fill="#fbbf24" font-size="12" text-anchor="middle" font-weight="bold">App</text>
+      <text x="350" y="95" fill="#94a3b8" font-size="9" text-anchor="middle">embed(query)</text>
+
+      <!-- Arrow app → vector cache -->
+      <path d="M 410 80 L 540 80" stroke="#22c55e" stroke-width="1.5" fill="none" marker-end="url(#arrow1)"/>
+      <text x="475" y="72" fill="#4ade80" font-size="9" text-anchor="middle">2. similar query?</text>
+
+      <!-- VECTOR CACHE -->
+      <rect x="550" y="40" width="140" height="80" rx="8" fill="#0f172a" stroke="#22c55e" stroke-width="2"/>
+      <text x="620" y="62" fill="#22c55e" font-size="12" text-anchor="middle" font-weight="bold">Vector Cache</text>
+      <text x="620" y="80" fill="#94a3b8" font-size="9" text-anchor="middle">Qdrant / Redis</text>
+      <text x="620" y="93" fill="#94a3b8" font-size="9" text-anchor="middle">Vector / pgvector</text>
+      <text x="620" y="110" fill="#cbd5e1" font-size="9" text-anchor="middle" font-style="italic">{query_emb → answer}</text>
+
+      <!-- Branch: HIT path -->
+      <path d="M 620 120 Q 620 180 480 200" stroke="#4ade80" stroke-width="2" stroke-dasharray="4,3" fill="none" marker-end="url(#arrow-green)"/>
+      <text x="640" y="160" fill="#4ade80" font-size="10">CACHE HIT</text>
+      <text x="640" y="174" fill="#94a3b8" font-size="9">similarity > 0.95</text>
+
+      <!-- Cached answer block -->
+      <rect x="320" y="180" width="180" height="40" rx="6" fill="rgba(34,197,94,0.12)" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="410" y="198" fill="#4ade80" font-size="11" text-anchor="middle" font-weight="bold">⚡ Return cached answer</text>
+      <text x="410" y="213" fill="#94a3b8" font-size="9" text-anchor="middle">~5ms, $0</text>
+
+      <!-- Arrow cached → user -->
+      <path d="M 320 200 Q 200 200 100 110" stroke="#4ade80" stroke-width="1.5" fill="none" marker-end="url(#arrow-green)"/>
+
+      <!-- Branch: MISS path -->
+      <path d="M 620 120 L 620 270" stroke="#f87171" stroke-width="2" stroke-dasharray="4,3" fill="none"/>
+      <text x="640" y="200" fill="#f87171" font-size="10">CACHE MISS</text>
+      <text x="640" y="214" fill="#94a3b8" font-size="9">no similar query</text>
+
+      <!-- LLM block -->
+      <rect x="540" y="280" width="160" height="60" rx="8" fill="#1e293b" stroke="#f87171" stroke-width="2"/>
+      <text x="620" y="304" fill="#fbbf24" font-size="12" text-anchor="middle" font-weight="bold">🤖 LLM (GPT-4)</text>
+      <text x="620" y="320" fill="#94a3b8" font-size="9" text-anchor="middle">~3 sec, $0.02</text>
+      <text x="620" y="333" fill="#94a3b8" font-size="9" text-anchor="middle">slow + expensive</text>
+
+      <!-- Arrow miss → LLM -->
+      <path d="M 620 270 L 620 280" stroke="#f87171" stroke-width="2" fill="none" marker-end="url(#arrow-red)"/>
+
+      <!-- Arrow LLM → store in cache -->
+      <path d="M 540 305 Q 410 305 410 130" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2" fill="none" marker-end="url(#arrow1)"/>
+      <text x="445" y="295" fill="#94a3b8" font-size="9">3. store {emb → answer}</text>
+
+      <!-- Arrow LLM → user (response) -->
+      <path d="M 540 330 Q 250 360 100 110" stroke="#f87171" stroke-width="1.5" fill="none" marker-end="url(#arrow-red)"/>
+
+      <!-- markers -->
+      <defs>
+        <marker id="arrow1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+        </marker>
+        <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#4ade80"/>
+        </marker>
+        <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#f87171"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <h3>Як це працює крок за кроком</h3>
+  <ol>
+    <li><strong>Юзер → query</strong>: «Tell me about Python»</li>
+    <li><strong>App embed-ить query</strong>: <code>vec = embed("Tell me about Python")</code></li>
+    <li><strong>Search у vector cache</strong>: чи є вже схожий збережений запит?
+      <ul>
+        <li><strong>HIT</strong> (similarity ≥ 0.95): повертаєш збережену відповідь — <strong>5ms, $0</strong></li>
+        <li><strong>MISS</strong>: викликаєш LLM (3s, $0.02) → зберігаєш <code>{vec, answer}</code> у кеш</li>
+      </ul>
+    </li>
+  </ol>
+
+  <h3>Реальний приклад коду</h3>
+  <pre><code># Спрощено — production версія в langchain.cache.RedisSemanticCache
+from openai import OpenAI
+from qdrant_client import QdrantClient
+
+client = OpenAI()
+cache = QdrantClient("localhost")
+SIMILARITY_THRESHOLD = 0.95
+
+def ask_with_cache(query: str) -> str:
+    # 1. Embed query
+    query_vec = client.embeddings.create(
+        model="text-embedding-3-small",
+        input=query
+    ).data[0].embedding
+
+    # 2. Search semantic cache
+    hits = cache.search(
+        collection_name="llm_cache",
+        query_vector=query_vec,
+        limit=1,
+    )
+    if hits and hits[0].score >= SIMILARITY_THRESHOLD:
+        return hits[0].payload["answer"]   # ⚡ CACHE HIT
+
+    # 3. CACHE MISS → call LLM
+    answer = client.chat.completions.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": query}]
+    ).choices[0].message.content
+
+    # 4. Store in cache for next time
+    cache.upsert(
+        collection_name="llm_cache",
+        points=[{"vector": query_vec, "payload": {"query": query, "answer": answer}}]
+    )
+    return answer</code></pre>
+
+  <h3>Економія в реальних цифрах</h3>
+  <div class="numbers">
+    <div class="num-card">
+      <div class="big">~30-60%</div>
+      <div class="lbl">типовий cache hit rate</div>
+    </div>
+    <div class="num-card">
+      <div class="big">×600</div>
+      <div class="lbl">latency (5ms vs 3000ms)</div>
+    </div>
+    <div class="num-card">
+      <div class="big">−50%</div>
+      <div class="lbl">витрати на LLM API</div>
+    </div>
+    <div class="num-card">
+      <div class="big">$0.0001</div>
+      <div class="lbl">cost per cached query (тільки embedding)</div>
+    </div>
+  </div>
+
+  <h3>Коли semantic cache НЕ підходить</h3>
+  <table>
+    <tr>
+      <th>Сценарій</th>
+      <th>Чому проблема</th>
+    </tr>
+    <tr>
+      <td>Персоналізовані відповіді (з user_id у промпті)</td>
+      <td>Однаковий query від різних юзерів → різні відповіді. Кешуй з namespace по user_id.</td>
+    </tr>
+    <tr>
+      <td>Real-time дані (ціни акцій, новини)</td>
+      <td>Закешуєш відповідь — а вона застаріла за 5 хвилин. Додай TTL.</td>
+    </tr>
+    <tr>
+      <td>Multi-turn conversation з контекстом</td>
+      <td>Один і той же question у різних чатах → різні відповіді. Кешуй за хешем (system_prompt + history + query).</td>
+    </tr>
+    <tr>
+      <td>Високі ставки на точність (medical, legal)</td>
+      <td>Similarity 0.96 ≠ 1.00. Юзер запитав «mg/kg» → знайшов кешований «mg/lb» → катастрофа.</td>
+    </tr>
+  </table>
+
+  <h3>Головний trade-off — threshold similarity</h3>
+  <table>
+    <tr>
+      <th>Threshold</th>
+      <th>Hit rate</th>
+      <th>Точність</th>
+      <th>Коли обирати</th>
+    </tr>
+    <tr>
+      <td>0.99</td>
+      <td>~5-10%</td>
+      <td>Майже ідентичні запити</td>
+      <td>Високі ставки (legal, medical)</td>
+    </tr>
+    <tr>
+      <td>0.95</td>
+      <td>~30-50%</td>
+      <td>Перефразування ОК</td>
+      <td><strong>Дефолт для більшості випадків</strong></td>
+    </tr>
+    <tr>
+      <td>0.90</td>
+      <td>~60-80%</td>
+      <td>Ризик false positive</td>
+      <td>FAQ, customer support</td>
+    </tr>
+    <tr>
+      <td>0.85</td>
+      <td>~90%</td>
+      <td>Часто повертає не те</td>
+      <td>Майже завжди погано</td>
+    </tr>
+  </table>
+
+  <h3>Production-готові рішення</h3>
+  <ul>
+    <li><strong>GPTCache</strong> (open-source) — найпопулярніша бібліотека, працює з Qdrant/Milvus/FAISS</li>
+    <li><strong>LangChain</strong> <code>RedisSemanticCache</code>, <code>QdrantSemanticCache</code> — drop-in рішення</li>
+    <li><strong>Redis Vector</strong> — офіційне рішення Redis Stack (саме воно на скріні з AWS)</li>
+    <li><strong>Cloudflare AI Gateway</strong> — semantic caching з коробки на edge</li>
+  </ul>
+
+  <div class="warning">
+    <strong>Підводні камені:</strong>
+    <ul style="margin-top: 0.5rem;">
+      <li><strong>Cold start</strong>: перші 1000 юзерів усе ще йдуть до LLM. Cache hit rate росте з часом.</li>
+      <li><strong>Cache invalidation</strong>: якщо змінив system prompt — стара кешована відповідь застаріла. Версіонуй кеш.</li>
+      <li><strong>Memory cost</strong>: кожен запис = 1 вектор (1536d × 4 byte = 6 KB) + текст відповіді. На 10M записів — ~100 GB.</li>
+      <li><strong>Privacy</strong>: ти зберігаєш user queries. Перевір GDPR / data retention policies.</li>
+    </ul>
+  </div>
+
+  <div class="takeaway">
+    <strong>Коли застосовувати:</strong> chat-боти з частими повторними питаннями, FAQ-системи,
+    customer support, code assistants. Threshold = 0.95 для дефолту, 0.99 — для критичних кейсів.
+    Hit rate 30-50% дає економію <strong>~$50K/міс на 1M юзерах</strong>. Це найдешевша
+    оптимізація вартості LLM, яку взагалі можна зробити.
+  </div>
+</section>
+
+<!-- ============ 12. EMBEDDING DRIFT ============ -->
 <section id="drift">
-  <h2><span class="badge">11</span>Embedding drift і моніторинг якості</h2>
+  <h2><span class="badge">12</span>Embedding drift і моніторинг якості</h2>
 
   <p>
     <strong>Drift</strong> — поступове розходження між <strong>старими ембеддингами в БД</strong>
@@ -3394,7 +3782,7 @@ top1_score_histogram.observe(results[0].score)
 
 <!-- ============ METRICS FOR HOMEWORK ============ -->
 <section id="metrics">
-  <h2><span class="badge">12</span>Метрики vector DB</h2>
+  <h2><span class="badge">13</span>Метрики vector DB</h2>
 
   <p>
     Щоб порівнювати vector DB між собою або відстежувати деградацію в продакшні,
