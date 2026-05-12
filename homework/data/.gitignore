@@ -1,0 +1,7 @@
+# Exclude large dataset files
+*.jsonl
+*.tsv
+*.npy
+*.pkl
+*.parquet
+embeddings/
